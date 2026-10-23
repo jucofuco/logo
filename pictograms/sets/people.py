@@ -59,9 +59,11 @@ def arm_c(d, shirt, width=11):
     return P(d, 'none', width + 2 * W, L) + P(d, 'none', width, shirt)
 
 
-def body(kind, shirt=None):
+def body(kind, shirt=None, arms=True):
     style, hc, sh = KINDS[kind]
     s = torso_c(shirt or sh)
+    if arms:
+        s += side_arms(0, 59)
     if style == 'long':
         s += P('M31 32 Q29 13 50 13 Q71 13 69 32 L72 62 Q66 67 60 61 L58 44 H42 L40 61 Q34 67 28 62 Z', hc)
     if kind == 'teacher':
@@ -107,8 +109,9 @@ def head(kind, mood='smile', look=0):
     return s
 
 
-def person(kind, mood='smile', look=0, shirt=None):
-    return body(kind, shirt) + head(kind, mood, look)
+def person(kind, mood='smile', look=0, shirt=None, arms=True):
+    """arms=False when the picture draws an arm of this person itself."""
+    return body(kind, shirt, arms) + head(kind, mood, look)
 
 
 # hand with the index finger out, wrist at origin, finger toward -y
@@ -174,7 +177,7 @@ def teacher():
     s += P('M4 60 H62', 'none', 4 + 2 * W, L) + P('M4 60 H62', 'none', 4, '#B98D5F')
     d = 'M60 74 Q46 72 40 58'
     s += P(d, 'none', 9 + 2 * W, L)
-    s += place(person('teacher'), 74, 46, 0.72)
+    s += place(person('teacher', arms=False), 74, 46, 0.72)
     s += P(d, 'none', 9, '#FFFFFF')
     s += point_hand(40, 59, -35, 0.95)
     return s

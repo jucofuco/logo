@@ -79,11 +79,18 @@ def happy_eye(cx, cy):
 # ---------- cropped upper body (bleeds off bottom edge) ----------
 def torso(dx=0, top=64):
     x = 50 + dx
-    if STYLE == 2:
-        # narrower body with the arms marked beside it
-        s = P(f'M{x-30} 104 V{top+20} Q{x-30} {top+2} {x} {top} Q{x+30} {top+2} {x+30} {top+20} V104 Z', SHIRT)
-        return s + P(f'M{x-20} {top+7} Q{x-23} {top+24} {x-21} 104 M{x+20} {top+7} Q{x+23} {top+24} {x+21} 104')
+    if STYLE == 2:   # narrower body
+        return P(f'M{x-30} 104 V{top+20} Q{x-30} {top+2} {x} {top} Q{x+30} {top+2} {x+30} {top+20} V104 Z', SHIRT)
     return P(f'M{x-36} 104 V{top+24} Q{x-36} {top+2} {x} {top} Q{x+36} {top+2} {x+36} {top+24} V104 Z', SHIRT)
+
+
+def side_arms(dx=0, top=64):
+    """Style 2: lines marking both arms hanging beside the body. Only for people who do nothing with
+    their arms (portraits); a person using an arm draws that arm instead."""
+    if STYLE == 1:
+        return ''
+    x = 50 + dx
+    return P(f'M{x-20} {top+7} Q{x-23} {top+24} {x-21} 104 M{x+20} {top+7} Q{x+23} {top+24} {x+21} 104')
 
 
 def headb(dx=0, head_y=36, r=19):

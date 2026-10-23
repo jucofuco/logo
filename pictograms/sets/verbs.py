@@ -113,7 +113,7 @@ def ask():
     # like ARASAAC (pedir): a request to another person; the child holds out an open hand to mom,
     # the question bubble says it is a request
     s = place(person('mom'), 80, 40, 0.74)
-    s += place(person('me', look=2), 24, 52, 0.66)
+    s += place(person('me', look=2, arms=False), 24, 52, 0.66)
     d = 'M28 104 Q32 88 46 84'
     s += arm_c(d, SHIRT, 9)
     s += hand('open', 45, 84.5, 78, 1.05)
