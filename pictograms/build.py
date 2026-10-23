@@ -1,6 +1,7 @@
 """Builds every pictogram into svg/<word id>.svg and writes preview.html.
 
-Usage:  python3 pictograms/build.py
+Usage:  python3 pictograms/build.py               all sets, deletes stale SVGs, writes preview.html
+        python3 pictograms/build.py toys clothes  only these sets (sets/toys.py ...), nothing else touched
 The preview shows all pictograms and lists the app's words that still have no pictogram.
 """
 import importlib
@@ -14,11 +15,19 @@ sys.path.insert(0, str(HERE))
 
 import kit  # noqa: E402
 
-for module in sorted((HERE / 'sets').glob('*.py')):
-    importlib.import_module(f'sets.{module.stem}')
+only = sys.argv[1:]
+modules = only or sorted(m.stem for m in (HERE / 'sets').glob('*.py') if m.stem != '__init__')
+for name in modules:
+    importlib.import_module(f'sets.{name}')
 
 out = HERE / 'svg'
 out.mkdir(exist_ok=True)
+if only:
+    for word_id, (label, draw) in kit.PICTOS.items():
+        (out / f'{word_id}.svg').write_text(kit.svg(label, draw()), encoding='utf-8')
+    print(f'{len(kit.PICTOS)} pictograms from {", ".join(only)} written to {out}')
+    sys.exit()
+
 for old in out.glob('*.svg'):
     if old.stem not in kit.PICTOS:
         old.unlink()  # a pictogram that was renamed or removed
