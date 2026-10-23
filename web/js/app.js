@@ -112,6 +112,7 @@ chips.addEventListener('contextmenu', (e) => e.preventDefault());
 
 $('undo').addEventListener('click', () => removeAt(state.sentence.length - 1));
 $('speak').addEventListener('click', () => say(sentenceText()));
+$('open-settings').addEventListener('click', () => openSettings());
 
 // ---------------------------------------------------------------- forms menu
 
@@ -157,7 +158,6 @@ function renderPage() {
             `<div class="grid cards" style="--c:${COLORS[folder.color] ?? COLORS.gray}">${folder.words.map(tile).join('')}</div>`;
     } else {
         page.innerHTML =
-            `<div class="head"><button class="gear" data-settings aria-label="Settings">${ICONS.settings}</button></div>` +
             `<div class="grid core" style="--c:var(--accent)">${structure.core.map(tile).join('')}</div>` +
             `<div class="grid cards">${structure.folders.map(folderTile).join('')}</div>`;
     }
@@ -170,7 +170,6 @@ $('page').addEventListener('click', (e) => {
     const folder = e.target.closest('[data-folder]');
     if (folder) { state.folder = folder.dataset.folder; return renderPage(); }
     if (e.target.closest('[data-back]')) { state.folder = null; return renderPage(); }
-    if (e.target.closest('[data-settings]')) openSettings();
 });
 
 // ---------------------------------------------------------------- banner
