@@ -6,6 +6,7 @@ struct LogoApp: App {
         WindowGroup {
             ContentView()
                 .tint(Theme.accent)
+                .followsAppearance()
         }
     }
 }

@@ -21,6 +21,10 @@ targets:
     platform: iOS
     sources:
       - logo
+      # Supertonic model, filled by Scripts/fetch_model.sh. Missing folder makes generate fail on purpose.
+      - path: Model
+        type: folder
+        buildPhase: resources
     dependencies:
       - package: onnxruntime
         product: onnxruntime

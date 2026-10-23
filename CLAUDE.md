@@ -1,8 +1,8 @@
 # logo
 
 Picture board (AAC) for kids: tap pictures to build a sentence, the app reads it aloud in Slovak.
-Voice is Supertonic 3 (on-device ONNX TTS, https://supertonic3.github.io/), with the iOS Slovak
-system voice as fallback until the model is downloaded. Scaffolded from `~/bettersocial` (snipoff).
+Slovak and Czech, with grammar (word forms). Voice is Supertonic 3 (on-device ONNX TTS,
+https://supertonic3.github.io/) bundled in the app, with the iOS system voice as fallback. Scaffolded from `~/bettersocial` (snipoff).
 
 ## Environment
 
@@ -31,19 +31,25 @@ xcrun devicectl device process launch --device 00008101-000601560A28001E --termi
 ## Code map
 
 - `logo/LogoApp.swift`: app entry.
-- `logo/ContentView.swift`: the one screen. Sentence strip (tap a chip to remove it, long press for Clear), Speak button, then the main page (core words + folder tiles) or an opened folder.
-- `logo/Vocabulary.swift`: all words, following the owner's tree: `core` (ja, áno, chcem, nie, nechcem) and `folders`. `Card.picture` is an emoji placeholder until the owner's pictograms arrive (then switch to asset images).
-- `logo/Speech/Speaker.swift`: speaks words/sentences, caches generated audio, plays in silent mode, falls back to `AVSpeechSynthesizer` sk-SK. Owns the model state (missing/downloading/loading/ready).
-- `logo/Speech/SupertonicEngine.swift`: `SupertonicModel` downloads ~398 MB of model files from Hugging Face (pinned revision of `supertone-oss-archive/supertonic-3`, voice F1) into Application Support on a tap; `SupertonicEngine` actor runs synthesis (lang `sk`, 8 steps).
+- `logo/ContentView.swift`: the one screen. Sentence strip (tap a chip removes it, long press a chip picks another form of the word, long press the strip for Clear), Speak button, then the main page (settings gear, core words, folder tiles) or an opened folder.
+- `logo/Vocabulary.swift`: `AppLanguage` (sk/cs), `ChildGender`, `WordEntry` (one word with its forms), `Folder`, and `Vocabulary` which loads the JSON below and stops with a clear message if an id is missing.
+- `logo/Vocabulary/structure.json`: what is shown where (core words, folders, order, colors, pictures; pictures are emoji until the owner's pictograms arrive). `words.sk.json` / `words.cs.json`: every word id with its forms (noun cases, verb present, adjective genders, preposition case). Same ids in both files. Edit these for vocabulary changes.
+- `logo/Grammar.swift`: `Grammar.render` turns the sentence (word ids) into text: object case after a verb, verb form by subject, "do školy" after ísť, adjective gender by subject or next noun (`attr`), "a/alebo" keeps the case. Off switch in Settings ("Word forms").
+- `logo/SettingsView.swift`: language, word forms on/off, child boy/girl, voice (10 presets, tap to hear), appearance.
+- `logo/Speech/Speaker.swift`: speaks words/sentences, caches audio per language+voice+text, plays in silent mode, falls back to `AVSpeechSynthesizer` (sk-SK / cs-CZ) while Supertonic loads or if it fails.
+- `logo/Speech/SupertonicEngine.swift`: `SupertonicModel` (voice list, bundle path) and the `SupertonicEngine` actor (synthesis, 8 steps, voice styles loaded on first use).
 - `logo/Speech/SupertonicHelper.swift`: vendored upstream Swift inference code (MIT), keep unchanged. Package: `onnxruntime-swift-package-manager` (module `OnnxRuntimeBindings`).
+- `Scripts/fetch_model.sh`: downloads the ~398 MB model + 10 voices into `Model/` (git-ignored). `project.yml` bundles `Model/` into the app, so run `sh Scripts/fetch_model.sh` once before the first generate/build.
+- `Scripts/make_icon.py`: draws the app icon.
 - `logo/Theme.swift`: colors, fonts, `.card()`, `.eyebrow()`, `Appearance` (System/Light/Dark) + `.followsAppearance()`. Copied from hardoff/snipoff (see `~/bettersocial/docs/design.md` "Reusing it in another app") - same violet accent; change `uiAccent`/`accent` if this app wants its own brand color.
-- `logo/Assets.xcassets/LaunchBackground`: launch screen color, matches `Theme.background`.
-- `logo/Assets.xcassets/AppIcon`: drawn by `Scripts/make_icon.py` (pure Python, no deps), rerun after changing it.
+- `logo/Assets.xcassets`: `LaunchBackground` (matches `Theme.background`) and `AppIcon`.
+- `docs/plan-grammar-czech.md`: the plan this was built from (done, except where this file differs: folder JSON is `logo/Vocabulary/`, noun person flag is `isPerson`, plus the "Word forms" switch and 10 voices).
 
 ## Current status
 
-Base version written (2026-10-23), not yet built on the Mac. Next: owner's pictograms instead of emoji.
-Open vocabulary questions from the owner's tree: "SPP?" left out (meaning unclear); "košeľa", "zadať", "znudený" included.
+Grammar, Czech, voices and bundled model written (2026-10-23), not yet built on the Mac. The app is about 400 MB because the model is inside it.
+Next: owner's pictograms instead of emoji. Owner should check the Slovak and Czech forms in `words.*.json`.
+Known limits: attributive adjectives (veľký) only get the right case after a verb ("chcem veľkú loptu"), not after a preposition; animate masculine accusative is not handled; "SPP?" from the owner's tree is left out (meaning unclear).
 
 ## Owner preferences
 

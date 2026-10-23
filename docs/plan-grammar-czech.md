@@ -1,5 +1,7 @@
 # Plan: declension, Czech, model in the app bundle
 
+**Status: implemented** (see `CLAUDE.md` code map for the differences). Kept as a record.
+
 Written 2026-10-23 for an implementing agent. Read `CLAUDE.md` first (environment, build
 commands, owner preferences). Reminders that matter here:
 

@@ -5,14 +5,26 @@ import SwiftUI
 struct ContentView: View {
     @State private var speaker = Speaker()
     @State private var openFolderID: String?
-    @State private var sentence: [Card] = []
+    @State private var sentence: [SentenceItem] = []
+    @State private var showSettings = false
+
+    @AppStorage("language") private var language = AppLanguage.sk
+    @AppStorage("childGender") private var child = ChildGender.boy
+    @AppStorage("grammar") private var grammar = true
+    @AppStorage("voice") private var voice = SupertonicModel.defaultVoice
+
+    private var words: [String: WordEntry] { Vocabulary.words(for: language) }
+
+    private var rendered: [String] {
+        Grammar.render(sentence, words: words, child: child, enabled: grammar)
+    }
 
     private var openFolder: Folder? {
         Vocabulary.folders.first { $0.id == openFolderID }
     }
 
     private var sentenceText: String {
-        let text = sentence.map(\.word).joined(separator: " ")
+        let text = rendered.joined(separator: " ")
         return text.prefix(1).uppercased() + text.dropFirst()
     }
 
@@ -33,6 +45,12 @@ struct ContentView: View {
         .padding(.horizontal, 16)
         .padding(.top, 8)
         .background(Theme.background.ignoresSafeArea())
+        .sheet(isPresented: $showSettings) { SettingsView(speaker: speaker) }
+        .onChange(of: language) {
+            // Hand-picked forms are text in the old language.
+            for index in sentence.indices { sentence[index].override = nil }
+            speaker.stop()
+        }
     }
 
     // MARK: Sentence
@@ -48,21 +66,9 @@ struct ContentView: View {
                                 .foregroundStyle(Theme.faint)
                                 .padding(.leading, 6)
                         }
-                        ForEach(Array(sentence.enumerated()), id: \.offset) { index, card in
-                            Button { sentence.remove(at: index) } label: {
-                                VStack(spacing: 2) {
-                                    Text(card.picture).font(.display(30, weight: .heavy)).foregroundStyle(Theme.text)
-                                    Text(card.word)
-                                        .font(.display(12, weight: .semibold))
-                                        .foregroundStyle(Theme.text)
-                                        .lineLimit(1)
-                                }
-                                .padding(.horizontal, 8)
-                                .frame(minWidth: 56, minHeight: 64)
-                                .background(Theme.raised, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
-                            }
-                            .buttonStyle(.plain)
-                            .id(index)
+                        ForEach(Array(sentence.enumerated()), id: \.offset) { index, item in
+                            chip(item, index: index)
+                                .id(index)
                         }
                     }
                     .frame(minHeight: 64)
@@ -88,9 +94,37 @@ struct ContentView: View {
         }
     }
 
+    /// A word in the sentence. Tap removes it, long press picks another form of it.
+    private func chip(_ item: SentenceItem, index: Int) -> some View {
+        let text = rendered.indices.contains(index) ? rendered[index] : item.wordID
+        return Button { sentence.remove(at: index) } label: {
+            VStack(spacing: 2) {
+                Text(Vocabulary.picture(of: item.wordID))
+                    .font(.display(30, weight: .heavy))
+                    .foregroundStyle(Theme.text)
+                Text(text)
+                    .font(.display(12, weight: .semibold))
+                    .foregroundStyle(Theme.text)
+                    .lineLimit(1)
+            }
+            .padding(.horizontal, 8)
+            .frame(minWidth: 56, minHeight: 64)
+            .background(Theme.raised, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+        }
+        .buttonStyle(.plain)
+        .contextMenu {
+            if grammar {
+                Button("Automatic") { sentence[index].override = nil }
+                ForEach(Grammar.forms(of: words[item.wordID]), id: \.self) { form in
+                    Button(form) { sentence[index].override = form }
+                }
+            }
+        }
+    }
+
     private var speakButton: some View {
         Button {
-            speaker.speak(sentenceText)
+            speaker.speak(sentenceText, language: language, voice: voice)
         } label: {
             HStack(spacing: 10) {
                 if speaker.isThinking {
@@ -112,13 +146,23 @@ struct ContentView: View {
 
     // MARK: Cards
 
-    /// Main screen: core words, then the folders.
+    /// Main screen: settings button, core words, then the folders.
     private var mainPage: some View {
         ScrollView {
             VStack(spacing: 14) {
+                HStack {
+                    Spacer()
+                    Button { showSettings = true } label: {
+                        Image(systemName: "gearshape.fill")
+                            .font(.system(size: 20))
+                            .foregroundStyle(Theme.muted)
+                            .frame(width: 44, height: 36)
+                    }
+                    .accessibilityLabel("Settings")
+                }
                 LazyVGrid(columns: columns(5), spacing: 8) {
-                    ForEach(Vocabulary.core) { card in
-                        cardButton(card, color: Theme.accent, pictureSize: 34, minHeight: 84)
+                    ForEach(Vocabulary.core, id: \.self) { id in
+                        cardButton(id, color: Theme.accent, pictureSize: 34, minHeight: 84)
                     }
                 }
                 LazyVGrid(columns: columns(3), spacing: 10) {
@@ -126,7 +170,8 @@ struct ContentView: View {
                         Button {
                             withAnimation(.snappy) { openFolderID = folder.id }
                         } label: {
-                            tile(picture: folder.picture, title: folder.title, color: folder.color, pictureSize: 44, minHeight: 108)
+                            tile(picture: folder.picture, title: Vocabulary.title(of: folder, words: words),
+                                 color: folder.color, pictureSize: 44, minHeight: 108)
                                 .overlay(alignment: .topTrailing) {
                                     Image(systemName: "folder.fill")
                                         .font(.system(size: 12))
@@ -152,7 +197,7 @@ struct ContentView: View {
                 HStack(spacing: 8) {
                     Image(systemName: "chevron.left").font(.system(size: 18, weight: .bold))
                     Text(folder.picture).font(.system(size: 24))
-                    Text(folder.title).font(.display(20, weight: .heavy))
+                    Text(Vocabulary.title(of: folder, words: words)).font(.display(20, weight: .heavy))
                     Spacer()
                 }
                 .foregroundStyle(Theme.text)
@@ -163,8 +208,8 @@ struct ContentView: View {
 
             ScrollView {
                 LazyVGrid(columns: columns(3), spacing: 10) {
-                    ForEach(folder.cards) { card in
-                        cardButton(card, color: folder.color, pictureSize: 44, minHeight: 108)
+                    ForEach(folder.wordIDs, id: \.self) { id in
+                        cardButton(id, color: folder.color, pictureSize: 44, minHeight: 108)
                     }
                 }
                 .padding(.bottom, 12)
@@ -177,14 +222,21 @@ struct ContentView: View {
         Array(repeating: GridItem(.flexible(), spacing: 10), count: count)
     }
 
-    private func cardButton(_ card: Card, color: Color, pictureSize: CGFloat, minHeight: CGFloat) -> some View {
+    private func cardButton(_ id: String, color: Color, pictureSize: CGFloat, minHeight: CGFloat) -> some View {
         Button {
-            sentence.append(card)
-            speaker.speak(card.word)
+            add(id)
         } label: {
-            tile(picture: card.picture, title: card.word, color: color, pictureSize: pictureSize, minHeight: minHeight)
+            tile(picture: Vocabulary.picture(of: id),
+                 title: Vocabulary.label(of: id, words: words, child: child),
+                 color: color, pictureSize: pictureSize, minHeight: minHeight)
         }
         .buttonStyle(.plain)
+    }
+
+    /// Adds the word and says it in the form it has in the sentence.
+    private func add(_ id: String) {
+        sentence.append(SentenceItem(wordID: id))
+        speaker.speak(rendered.last ?? "", language: language, voice: voice)
     }
 
     private func tile(picture: String, title: String, color: Color, pictureSize: CGFloat, minHeight: CGFloat) -> some View {
@@ -209,7 +261,7 @@ struct ContentView: View {
     }
 }
 
-/// Offers the Supertonic voice download until it is ready. Hidden once the voice works.
+/// Shows while the voice loads or if it could not load. Hidden once it works.
 private struct ModelBanner: View {
     let speaker: Speaker
 
@@ -217,24 +269,12 @@ private struct ModelBanner: View {
         switch speaker.modelState {
         case .ready:
             EmptyView()
-        case .missing:
-            row("Better voice, \(megabytes) MB") {
-                Button("Download") { speaker.downloadModel() }.buttonStyle(.borderedProminent)
-            }
-        case .downloading(let fraction):
-            row("Downloading voice") {
-                ProgressView(value: fraction).frame(width: 110)
-            }
         case .loading:
             row("Preparing voice") { ProgressView() }
-        case .failed(let message):
-            row(message) {
-                Button("Retry") { speaker.downloadModel() }.buttonStyle(.bordered)
-            }
+        case .failed:
+            row("Voice could not load, using the phone voice") { EmptyView() }
         }
     }
-
-    private var megabytes: Int { Int(SupertonicModel.totalSize / 1_000_000) }
 
     private func row(_ text: String, @ViewBuilder trailing: () -> some View) -> some View {
         HStack {
