@@ -16,15 +16,29 @@ def no():
     return P(xx, 'none', 19, L) + P(xx, 'none', 15, RED)
 
 
+def reach_apple():
+    """A big arm in the child's blue sleeve reaching up toward an apple (idea: ARASAAC 31141)."""
+    sleeve = 'M-8 108 Q16 88 42 70'
+    s = hand('open', 45, 68, 53, 1.65)
+    s += P(sleeve, 'none', 22 + 2 * W, L) + P(sleeve, 'none', 22, SHIRT)
+    s += P('M35.6 60.6 L48.4 79.4', 'none', 2.4, L)                      # cuff
+    s += C(82, 20, 12, '#E5534B') + P('M82 8 Q82 3 87 1.5', sw=2.2) + P('M82 6.5 Q88 -0.5 95 3 Q89 10 82 6.5 Z', GREEN, 1.6)
+    s += E(76, 16, 2.8, 4.6, '#F6A39D', 0, rot=30)
+    return s
+
+
 @picto('want', 'chcem')
 def want():
-    # reach toward apple
-    d = 'M38 80 Q50 60 62 52'
-    s = arm_back(d) + torso(-22, 61) + arm_fill(d) + headb(-22, 38) + face_small(28, 40, 'smile', look=2)
-    s += C(83, 26, 9.5, '#E5534B') + P('M83 16.5 Q83 11 88 10', sw=1.8) + P('M83 15 Q87 9 92 12 Q88 16 83 15 Z', GREEN, 1.4)
-    s += hand('open', 63, 51, 52, 1.15)
-    s += P('M70 32 L73 36 M74 40 L78 41', sw=1.8)
+    s = reach_apple()
+    s += P('M58 22 L63 27 M53 33 L60 35 M66 12 L68 18', sw=2.2)         # eager marks
     return s
+
+
+@picto('dontWant', 'nechcem')
+def dont_want():
+    # the same reach, crossed out (idea: ARASAAC 6156)
+    xx = 'M18 18 L82 82 M82 18 L18 82'
+    return reach_apple() + P(xx, 'none', 13, L) + P(xx, 'none', 9, RED)
 
 
 @picto('help', 'pomoc')
@@ -46,13 +60,3 @@ def me():
     return place(me_pointing(), 50, 40, 1.1)
 
 
-@picto('dontWant', 'nechcem')
-def dont_want():
-    # the apple from `want`, but the child turns his head away and pushes it off with a flat palm
-    d = 'M48 84 Q62 74 64 58'
-    s = arm_back(d) + torso(-16, 61) + arm_fill(d) + headb(-18, 38) + face_small(31, 40, 'frown', look=-3)
-    s += hand('open', 65, 59, 12, 1.25)
-    s += C(86, 70, 9.5, '#E5534B') + P('M86 60.5 Q86 55 91 54', sw=1.8) + P('M86 59 Q90 53 95 56 Q91 60 86 59 Z', GREEN, 1.4)
-    xx = 'M78 22 L92 36 M92 22 L78 36'
-    s += P(xx, 'none', 8, L) + P(xx, 'none', 5, RED)
-    return s
