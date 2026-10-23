@@ -33,6 +33,8 @@ for old in out.glob('*.svg'):
         old.unlink()  # a pictogram that was renamed or removed
 for word_id, (label, draw) in kit.PICTOS.items():
     (out / f'{word_id}.svg').write_text(kit.svg(label, draw()), encoding='utf-8')
+# The web app reads this to know which words have a pictogram (the others show their emoji).
+(out / 'index.json').write_text(json.dumps(sorted(kit.PICTOS)), encoding='utf-8')
 
 # Which app words have a pictogram (letters and numbers are drawn as text by the app).
 structure = json.loads((VOCABULARY / 'structure.json').read_text(encoding='utf-8'))

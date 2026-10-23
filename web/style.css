@@ -43,7 +43,7 @@ button:disabled { cursor: default; }
 }
 .chip .pic { font-size: 30px; line-height: 1.1; font-weight: 800; }
 .chip .lbl { font-size: 12px; font-weight: 600; white-space: nowrap; }
-.icon-btn { flex: none; width: 44px; height: 44px; font-size: 22px; }
+.icon-btn { flex: none; width: 44px; height: 44px; font-size: 26px; color: var(--muted); }
 .icon-btn:disabled { opacity: .3; }
 
 .speak {
@@ -67,7 +67,7 @@ button:disabled { cursor: default; }
 .grid.cards { grid-template-columns: repeat(3, 1fr); }
 
 .tile {
-  position: relative; min-height: 108px; padding: 0 4px; border-radius: 20px;
+  position: relative; min-height: 116px; padding: 0 4px; border-radius: 20px;
   background: color-mix(in srgb, var(--c) 18%, transparent);
   border: 2px solid color-mix(in srgb, var(--c) 45%, transparent);
   display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
@@ -78,6 +78,11 @@ button:disabled { cursor: default; }
 .core .tile { min-height: 84px; }
 .core .tile .pic { font-size: 34px; }
 .core .tile .lbl { font-size: 13px; }
+/* pictograms keep a white ground in dark mode too, they are drawn for it */
+.picto { display: block; width: 66px; height: 66px; padding: 3px; background: #fff; border-radius: 12px; pointer-events: none; -webkit-user-drag: none; }
+.core .tile .picto { width: 48px; height: 48px; border-radius: 10px; padding: 2px; }
+.chip .picto { width: 40px; height: 40px; border-radius: 9px; padding: 2px; }
+.back .picto { width: 32px; height: 32px; border-radius: 8px; padding: 1px; }
 .tile .folder { position: absolute; top: 6px; right: 8px; font-size: 12px; opacity: .8; }
 .tile:active { transform: scale(.97); }
 
@@ -108,3 +113,12 @@ dialog h2 { margin: 0 0 12px; font-size: 20px; }
 .range { display: flex; align-items: center; gap: 10px; }
 .range input { flex: 1; accent-color: var(--accent); }
 .range span { min-width: 36px; text-align: right; font-weight: 700; }
+
+/* line icons for controls */
+.ico { width: 1em; height: 1em; display: inline-block; vertical-align: -0.15em; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.gear { font-size: 24px; }
+.tile .folder { color: var(--c); font-size: 16px; opacity: 1; }
+.back .arrow { font-size: 22px; display: flex; }
+.spinner { width: 18px; height: 18px; border: 2.5px solid var(--raised); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.9s linear infinite; }
+.tile .lbl { overflow-wrap: normal; }
+.core .tile .lbl { font-size: 12px; }

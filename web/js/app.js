@@ -17,6 +17,13 @@ const STEPS = [['Fastest', 4], ['Fast', 6], ['Normal', 8], ['Best', 12]];
 const DEFAULTS = { language: 'sk', child: 'boy', grammar: true, voice: 'F1', speed: 1, steps: 8, engine: 'cpu' };
 
 const $ = (id) => document.getElementById(id);
+
+// Small line icons for the controls (no emoji anywhere in the app).
+const ICONS = {
+    settings: '<svg class="ico" viewBox="0 0 24 24"><path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/></svg>',
+    folder: '<svg class="ico" viewBox="0 0 24 24"><path d="M3 6a1 1 0 0 1 1-1h5l2 2h9a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z" fill="currentColor"/></svg>',
+    back: '<svg class="ico" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg>',
+};
 const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
 
 const settings = (() => {
@@ -28,6 +35,8 @@ function saveSettings() {
 
 let structure;
 let wordsByLang;
+/** Word ids that have a pictogram (pictograms/ is ../pictograms/svg, made by pictograms/build.py). */
+let pictograms = new Set();
 const state = { sentence: [], folder: null };
 const speaker = new Speaker(() => { renderBanner(); renderSpeak(); }, settings.engine);
 
@@ -39,12 +48,19 @@ const sentenceText = () => {
 };
 const say = (text) => speaker.speak(text, settings.language, settings.voice, { speed: settings.speed, steps: settings.steps });
 
+/** The pictogram of a word if there is one, else its emoji (or letter, digit) from structure.json. */
+function pic(id, fallback) {
+    return id && pictograms.has(id)
+        ? `<img class="picto" src="pictograms/${esc(id)}.svg" alt="">`
+        : `<span class="pic">${esc(fallback)}</span>`;
+}
+
 // ---------------------------------------------------------------- sentence
 
 function renderStrip() {
     const texts = rendered();
     $('chips').innerHTML = state.sentence.length
-        ? state.sentence.map((item, i) => `<button class="chip" data-i="${i}"><span class="pic">${esc(structure.pictures[item.id] ?? '❓')}</span><span class="lbl">${esc(texts[i])}</span></button>`).join('')
+        ? state.sentence.map((item, i) => `<button class="chip" data-i="${i}">${pic(item.id, structure.pictures[item.id] ?? '❓')}<span class="lbl">${esc(texts[i])}</span></button>`).join('')
         : '<span class="hint">Tap a picture</span>';
     $('chips').scrollLeft = $('chips').scrollWidth;
     $('undo').disabled = !state.sentence.length;
@@ -125,11 +141,11 @@ $('forms-list').addEventListener('click', (e) => {
 // ---------------------------------------------------------------- cards
 
 function tile(id) {
-    return `<button class="tile" data-word="${esc(id)}"><span class="pic">${esc(structure.pictures[id] ?? '❓')}</span><span class="lbl">${esc(label(id, words(), settings.child))}</span></button>`;
+    return `<button class="tile" data-word="${esc(id)}">${pic(id, structure.pictures[id] ?? '❓')}<span class="lbl">${esc(label(id, words(), settings.child))}</span></button>`;
 }
 
 function folderTile(folder) {
-    return `<button class="tile" style="--c:${COLORS[folder.color] ?? COLORS.gray}" data-folder="${esc(folder.id)}"><span class="folder">📁</span><span class="pic">${esc(folder.picture)}</span><span class="lbl">${esc(words()[`folder.${folder.id}`].base)}</span></button>`;
+    return `<button class="tile" style="--c:${COLORS[folder.color] ?? COLORS.gray}" data-folder="${esc(folder.id)}"><span class="folder">${ICONS.folder}</span>${pic(folder.icon, folder.picture)}<span class="lbl">${esc(words()[`folder.${folder.id}`].base)}</span></button>`;
 }
 
 function renderPage() {
@@ -137,11 +153,11 @@ function renderPage() {
     if (state.folder) {
         const folder = structure.folders.find((f) => f.id === state.folder);
         page.innerHTML =
-            `<button class="back" data-back><span class="arrow">‹</span><span class="pic">${esc(folder.picture)}</span><span>${esc(words()[`folder.${folder.id}`].base)}</span></button>` +
+            `<button class="back" data-back><span class="arrow">${ICONS.back}</span>${pic(folder.icon, folder.picture)}<span>${esc(words()[`folder.${folder.id}`].base)}</span></button>` +
             `<div class="grid cards" style="--c:${COLORS[folder.color] ?? COLORS.gray}">${folder.words.map(tile).join('')}</div>`;
     } else {
         page.innerHTML =
-            '<div class="head"><button class="gear" data-settings aria-label="Settings">⚙️</button></div>' +
+            `<div class="head"><button class="gear" data-settings aria-label="Settings">${ICONS.settings}</button></div>` +
             `<div class="grid core" style="--c:var(--accent)">${structure.core.map(tile).join('')}</div>` +
             `<div class="grid cards">${structure.folders.map(folderTile).join('')}</div>`;
     }
@@ -177,7 +193,7 @@ function renderBanner() {
             banner.innerHTML = `<span>Downloading voice</span><progress max="1" value="${speaker.progress}"></progress>`;
             break;
         case 'loading':
-            banner.innerHTML = '<span>Preparing voice</span><span>⏳</span>';
+            banner.innerHTML = '<span>Preparing voice</span><span class="spinner"></span>';
             break;
         default:
             banner.innerHTML = `<span>${esc(speaker.message)}</span><button data-download>Retry</button>`;
@@ -285,6 +301,11 @@ async function boot() {
         }));
         structure = structureData;
         wordsByLang = { sk, cs };
+        try {
+            pictograms = new Set(await (await fetch('pictograms/index.json')).json());
+        } catch {
+            log('no pictograms, showing emoji');
+        }
         const required = [...structure.core, ...structure.folders.flatMap((f) => [`folder.${f.id}`, ...f.words])];
         const missing = Object.entries(wordsByLang).flatMap(([lang, w]) => required.filter((id) => !w[id]).map((id) => `${lang}:${id}`));
         if (missing.length) throw new Error(`missing words ${missing.join(', ')}`);
@@ -292,6 +313,10 @@ async function boot() {
         $('page').textContent = `Could not load the words: ${error.message}`;
         return;
     }
+    // For screenshots: ?folder=toys opens a folder, ?sentence=me,want,ball fills the sentence.
+    const params = new URLSearchParams(location.search);
+    if (structure.folders.some((f) => f.id === params.get('folder'))) state.folder = params.get('folder');
+    for (const id of (params.get('sentence') ?? '').split(',').filter((i) => words()[i])) state.sentence.push({ id });
     renderAll();
     speaker.init();
 }
