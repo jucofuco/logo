@@ -4,3 +4,4 @@ DerivedData/
 *.xcuserstate
 web/model/
 web/vendor/
+web/model-q/
