@@ -13,7 +13,7 @@ const COLORS = {
     orange: '#FF9500', blue: '#0A84FF', green: '#34C759', red: '#FF3B30', pink: '#FF2D55',
     purple: '#AF52DE', yellow: '#FFCC00', teal: '#30B0C7', indigo: '#5856D6', gray: '#8E8E93',
 };
-const STEPS = [['Fast', 6], ['Normal', 8], ['Best', 12]];
+const STEPS = [['Fastest', 4], ['Fast', 6], ['Normal', 8], ['Best', 12]];
 const DEFAULTS = { language: 'sk', child: 'boy', grammar: true, voice: 'F1', speed: 1, steps: 8 };
 
 const $ = (id) => document.getElementById(id);
@@ -214,7 +214,7 @@ function renderSettings() {
         <div class="group"><h3>Voice</h3><div class="list">${VOICES.map((v) =>
             `<button data-voice="${v}" class="${settings.voice === v ? 'on' : ''}"><span>${voiceTitle(v)}</span><span>${settings.voice === v ? '✓' : ''}</span></button>`).join('')}</div></div>
         <div class="group"><h3>Speed</h3><div class="range"><input type="range" id="speed" min="0.8" max="1.3" step="0.05" value="${settings.speed}"><span id="speed-val">${Number(settings.speed).toFixed(2)}</span></div></div>
-        <div class="group"><h3>Quality</h3>${seg('steps', STEPS.map(([t, v]) => [t, v]))}<p>Better quality takes longer to generate.</p></div>`;
+        <div class="group"><h3>Quality</h3>${seg('steps', STEPS.map(([t, v]) => [t, v]))}<p>Fewer steps are faster but sound rougher.</p></div>`;
 }
 
 $('settings-body').addEventListener('click', (e) => {

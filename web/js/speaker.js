@@ -165,7 +165,19 @@ export class Speaker {
 
         this.thinking = true;
         this.#onChange();
-        this.#run({ id, key, text, language, voice, speed, steps });
+        this.#lookup({ id, key, text, language, voice, speed, steps });
+    }
+
+    /** Audio generated on an earlier visit is played from storage, otherwise it is generated. */
+    async #lookup(job) {
+        const stored = await store.getClip(job.key).catch(() => null);
+        if (job.id !== this.#request) return;
+        if (!stored) return this.#run(job);
+        const url = URL.createObjectURL(new Blob([stored], { type: 'audio/wav' }));
+        this.#cache.set(job.key, url);
+        this.thinking = false;
+        this.#onChange();
+        this.#play(url);
     }
 
     /** One sentence at a time. If taps come faster, only the newest one waits. */
@@ -178,6 +190,7 @@ export class Speaker {
             });
             const url = URL.createObjectURL(new Blob([wav], { type: 'audio/wav' }));
             this.#cache.set(job.key, url);
+            store.putClip(job.key, wav).catch((error) => log('clip not saved', error));
             if (job.id === this.#request) { this.thinking = false; this.#onChange(); this.#play(url); }
         } catch (error) {
             console.error(error);

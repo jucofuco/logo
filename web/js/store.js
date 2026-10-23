@@ -61,6 +61,15 @@ export async function hasAll(files) {
     return true;
 }
 
+/** Generated audio, kept so a sentence is only slow the first time it is spoken. */
+export function putClip(key, buffer) {
+    return run('readwrite', (s) => s.put(buffer, `clip:${key}`));
+}
+
+export function getClip(key) {
+    return run('readonly', (s) => s.get(`clip:${key}`));
+}
+
 /** Throws everything away, for when what is stored cannot be read. */
 export function clear() {
     return new Promise((resolve) => {

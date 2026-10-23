@@ -57,8 +57,11 @@ function style(voice) {
 }
 
 async function speak({ text, lang, voice, speed, steps }) {
+    const started = performance.now();
     const { wav, duration } = await tts.call(text, lang, style(voice), steps, speed);
     const length = Math.min(Math.floor(tts.sampleRate * duration[0]), wav.length);
+    const took = (performance.now() - started) / 1000;
+    log('speak', `"${text}"`, lang, 'steps', steps, 'audio', duration[0].toFixed(2) + 's', 'took', took.toFixed(1) + 's');
     return writeWavFile(wav.slice(0, length), tts.sampleRate);
 }
 

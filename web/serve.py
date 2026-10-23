@@ -31,6 +31,9 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         self.end_headers()
 
     def end_headers(self):
+        # Lets the browser use several threads for the voice, but only on https (ignored on plain http).
+        self.send_header("Cross-Origin-Opener-Policy", "same-origin")
+        self.send_header("Cross-Origin-Embedder-Policy", "require-corp")
         path = self.path.split("?")[0]
         if path.startswith(("/model/", "/vendor/")):
             self.send_header("Cache-Control", "public, max-age=31536000, immutable")
