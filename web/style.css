@@ -1,0 +1,110 @@
+:root {
+  --bg: #F5F4F1; --card: #FFFFFF; --raised: #ECEBE7; --stroke: rgba(0, 0, 0, .06);
+  --text: #1A1A1C; --muted: #6B6A70; --faint: #A09FA5;
+  --accent: #6E56CF; --on-accent: #FFFFFF; --shadow: rgba(0, 0, 0, .05);
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0E0E10; --card: #1C1C1F; --raised: #2A2A2E; --stroke: rgba(255, 255, 255, .07);
+    --text: #F4F3F0; --muted: #A3A2A8; --faint: #6A696F;
+    --accent: #9E8CFC; --on-accent: #16131F; --shadow: transparent;
+  }
+}
+
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { height: 100%; margin: 0; }
+body {
+  background: var(--bg); color: var(--text);
+  font-family: ui-rounded, "SF Pro Rounded", system-ui, -apple-system, sans-serif;
+  -webkit-user-select: none; user-select: none; -webkit-touch-callout: none;
+  overscroll-behavior: none;
+}
+button { font: inherit; color: inherit; border: 0; background: none; padding: 0; cursor: pointer; touch-action: manipulation; }
+button:disabled { cursor: default; }
+
+#app {
+  display: flex; flex-direction: column; gap: 14px; height: 100dvh; max-width: 560px; margin: 0 auto;
+  padding: calc(8px + env(safe-area-inset-top)) 16px calc(8px + env(safe-area-inset-bottom));
+}
+
+.card {
+  background: var(--card); border: 1px solid var(--stroke); border-radius: 22px;
+  box-shadow: 0 4px 14px var(--shadow);
+}
+
+/* sentence strip */
+.strip { display: flex; align-items: center; gap: 8px; padding: 10px; flex: none; }
+.chips { flex: 1; display: flex; gap: 6px; align-items: center; min-height: 64px; overflow-x: auto; scrollbar-width: none; }
+.chips::-webkit-scrollbar { display: none; }
+.hint { color: var(--faint); font-weight: 600; font-size: 17px; padding-left: 6px; white-space: nowrap; }
+.chip {
+  flex: none; min-width: 56px; min-height: 64px; padding: 0 8px; border-radius: 14px; background: var(--raised);
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
+}
+.chip .pic { font-size: 30px; line-height: 1.1; font-weight: 800; }
+.chip .lbl { font-size: 12px; font-weight: 600; white-space: nowrap; }
+.icon-btn { flex: none; width: 44px; height: 44px; font-size: 22px; }
+.icon-btn:disabled { opacity: .3; }
+
+.speak {
+  flex: none; min-height: 60px; border-radius: 20px; background: var(--accent); color: var(--on-accent);
+  font-size: 22px; font-weight: 800; display: flex; align-items: center; justify-content: center; gap: 10px;
+}
+.speak:disabled { opacity: .4; }
+.speak.thinking #speak-icon { animation: spin 1s linear infinite; display: inline-block; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* cards */
+.page { flex: 1; min-height: 0; overflow-y: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+.page::-webkit-scrollbar { display: none; }
+.head { display: flex; justify-content: flex-end; }
+.gear { width: 44px; height: 36px; font-size: 20px; color: var(--muted); }
+.back { display: flex; align-items: center; gap: 8px; min-height: 44px; width: 100%; font-size: 20px; font-weight: 800; text-align: left; }
+.back .arrow { font-size: 18px; font-weight: 700; }
+.back .pic { font-size: 24px; font-weight: 400; }
+.grid { display: grid; gap: 10px; margin-bottom: 14px; }
+.grid.core { grid-template-columns: repeat(5, 1fr); gap: 8px; }
+.grid.cards { grid-template-columns: repeat(3, 1fr); }
+
+.tile {
+  position: relative; min-height: 108px; padding: 0 4px; border-radius: 20px;
+  background: color-mix(in srgb, var(--c) 18%, transparent);
+  border: 2px solid color-mix(in srgb, var(--c) 45%, transparent);
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
+  text-align: center;
+}
+.tile .pic { font-size: 44px; line-height: 1.1; font-weight: 800; }
+.tile .lbl { font-size: 15px; font-weight: 700; line-height: 1.15; overflow-wrap: anywhere; }
+.core .tile { min-height: 84px; }
+.core .tile .pic { font-size: 34px; }
+.core .tile .lbl { font-size: 13px; }
+.tile .folder { position: absolute; top: 6px; right: 8px; font-size: 12px; opacity: .8; }
+.tile:active { transform: scale(.97); }
+
+.banner { flex: none; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 16px; font-size: 14px; font-weight: 500; color: var(--muted); }
+.banner[hidden] { display: none; }
+.banner button { background: var(--accent); color: var(--on-accent); font-weight: 700; padding: 8px 14px; border-radius: 12px; }
+.banner progress { width: 110px; accent-color: var(--accent); }
+
+/* dialogs */
+dialog.sheet {
+  width: min(92vw, 420px); max-height: 82dvh; overflow-y: auto; margin: auto; padding: 18px;
+  border: 1px solid var(--stroke); border-radius: 22px; background: var(--card); color: var(--text);
+}
+dialog.sheet::backdrop { background: rgba(0, 0, 0, .4); }
+dialog h2 { margin: 0 0 12px; font-size: 20px; }
+.list { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
+.list button, .row button.opt { text-align: left; padding: 12px 14px; border-radius: 12px; background: var(--raised); font-weight: 600; display: flex; justify-content: space-between; }
+.list button.on, button.opt.on { outline: 2px solid var(--accent); }
+.done { width: 100%; padding: 14px; border-radius: 14px; background: var(--accent); color: var(--on-accent); font-weight: 800; }
+.group { margin-bottom: 16px; }
+.group h3 { margin: 0 0 6px; font-size: 11px; letter-spacing: 1.4px; text-transform: uppercase; color: var(--muted); }
+.group p { margin: 6px 0 0; font-size: 12px; color: var(--muted); }
+.seg { display: flex; gap: 6px; }
+.seg button { flex: 1; padding: 10px 6px; border-radius: 12px; background: var(--raised); font-weight: 700; text-align: center; }
+.seg button.on { background: var(--accent); color: var(--on-accent); }
+.switch { display: flex; align-items: center; justify-content: space-between; font-weight: 600; margin-bottom: 8px; }
+.switch input { width: 22px; height: 22px; accent-color: var(--accent); }
+.range { display: flex; align-items: center; gap: 10px; }
+.range input { flex: 1; accent-color: var(--accent); }
+.range span { min-width: 36px; text-align: right; font-weight: 700; }

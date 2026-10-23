@@ -1,0 +1,12 @@
+{
+  "name": "logo",
+  "short_name": "logo",
+  "start_url": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#6E56CF",
+  "theme_color": "#6E56CF",
+  "icons": [
+    { "src": "icon.png", "sizes": "1024x1024", "type": "image/png", "purpose": "any" }
+  ]
+}

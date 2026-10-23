@@ -44,6 +44,20 @@ xcrun devicectl device process launch --device 00008101-000601560A28001E --termi
 - `logo/Assets.xcassets`: `LaunchBackground` (matches `Theme.background`) and `AppIcon`.
 - `docs/plan-grammar-czech.md`: the plan this was built from (done, except where this file differs: folder JSON is `logo/Vocabulary/`, noun person flag is `isPerson`, plus the "Word forms" switch and 10 voices; Part 4 was reverted, the model is downloaded in the app).
 
+## Web version (`web/`)
+
+Prototype of the same app as a web page (can be added to the iPhone home screen), so accounts and
+payments could later go around the App Store. Plain ES modules, no build step. Same words and
+grammar as iOS: `web/data` is a symlink to `logo/Vocabulary`, `web/js/grammar.js` is a port of
+`Grammar.swift` (keep them in step). Supertonic runs with ONNX Runtime Web (WASM, one thread, in a
+worker) and downloads the model from the server into IndexedDB on a tap, like the iOS app.
+
+- `sh web/fetch_model.sh` once: downloads `web/model/` (model, 10 voices) and `web/vendor/` (ONNX Runtime Web). Both are git-ignored.
+- `python3 web/serve.py 8500` serves it. On the Pi: `http://192.168.0.190:8500` (LAN) or `http://100.124.157.43:8500` (Tailscale).
+- Plain http means a single WASM thread and no Cache API (IndexedDB is used). HTTPS (e.g. `tailscale serve`) would allow threads and WebGPU, not tried.
+- Files: `js/app.js` (UI), `js/speaker.js` (download, worker calls, audio, phone-voice fallback), `js/tts.worker.js`, `js/supertonic.js` (vendored upstream, MIT), `js/store.js` (IndexedDB), `js/model.js` (file list, voices).
+- Checked on the Pi with Node: model loads, sk and cs sentences generate (about 7 s on the Pi). Not yet tried in a phone browser.
+
 ## Current status
 
 Grammar, Czech and voices written (2026-10-23), not yet built on the Mac. The voice model is downloaded inside the app (Download button), not bundled, because it is too big for git.
