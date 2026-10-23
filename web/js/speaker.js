@@ -1,4 +1,5 @@
 import * as store from './store.js';
+import { log } from './log.js';
 import { FILES, totalSize } from './model.js';
 
 const SYSTEM_VOICE = { sk: 'sk-SK', cs: 'cs-CZ' };
@@ -61,6 +62,7 @@ export class Speaker {
     }
 
     #set(state, message = '') {
+        log('state', state, message);
         this.state = state;
         this.message = message;
         this.#onChange();
@@ -88,10 +90,11 @@ export class Speaker {
                     this.#onChange();
                 });
                 done += file.size;
-                try { await store.put(file.path, buffer, file.size); } catch { kept[file.path] = buffer; }
+                try { await store.put(file.path, buffer, file.size); } catch (error) { log('store.put failed', file.path, error); kept[file.path] = buffer; }
             }
         } catch (error) {
             console.error(error);
+            log('download failed', error);
             return this.#set('failed', 'Download failed. Check the connection and try again.');
         }
         await this.#load(Object.keys(kept).length ? kept : null);
@@ -114,7 +117,7 @@ export class Speaker {
                 this.#calls.delete(data.id);
                 if (data.ok) call?.resolve(data); else call?.reject(new Error(data.error));
             };
-            this.#worker.onerror = (event) => console.error('worker', event.message);
+            this.#worker.onerror = (event) => { console.error('worker', event.message); log('worker error', event.message, event.filename, event.lineno); };
             await this.#call(
                 { type: 'load', vendorURL: new URL('../vendor/', import.meta.url).href, files },
                 files ? Object.values(files) : [],
@@ -122,6 +125,7 @@ export class Speaker {
             this.#set('ready');
         } catch (error) {
             console.error(error);
+            log('load failed', error);
             this.#set('failed', `Voice could not load: ${error.message}`);
         }
     }
@@ -162,6 +166,7 @@ export class Speaker {
             if (job.id === this.#request) { this.thinking = false; this.#onChange(); this.#play(url); }
         } catch (error) {
             console.error(error);
+            log('speak failed', error);
             if (job.id === this.#request) { this.thinking = false; this.#onChange(); this.#speakWithSystem(job.text, job.language); }
         } finally {
             this.#busy = false;
@@ -180,7 +185,7 @@ export class Speaker {
 
     #play(url) {
         this.#audio.src = url;
-        this.#audio.play().catch((error) => console.error('play', error));
+        this.#audio.play().catch((error) => { console.error('play', error); log('play failed', error); });
     }
 
     #speakWithSystem(text, language) {

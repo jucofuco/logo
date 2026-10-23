@@ -21,6 +21,15 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         ".webmanifest": "application/manifest+json",
     }
 
+    def do_POST(self):
+        if self.path != "/log":
+            return self.send_error(404)
+        length = int(self.headers.get("Content-Length", 0))
+        body = self.rfile.read(min(length, 8192)).decode("utf-8", "replace")
+        print(f"CLIENT {self.client_address[0]}: {body}", flush=True)
+        self.send_response(204)
+        self.end_headers()
+
     def end_headers(self):
         path = self.path.split("?")[0]
         if path.startswith(("/model/", "/vendor/")):

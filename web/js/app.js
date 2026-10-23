@@ -3,6 +3,7 @@
 import { Speaker } from './speaker.js';
 import { render, forms, label } from './grammar.js';
 import { VOICES, voiceTitle, totalSize } from './model.js';
+import { log } from './log.js';
 
 const LANGS = {
     sk: { title: 'Slovenčina', sample: 'Ahoj, ako sa máš?' },
@@ -292,4 +293,7 @@ async function boot() {
     renderAll();
     speaker.init();
 }
+window.addEventListener('error', (e) => log('window error', e.message, e.filename, e.lineno));
+window.addEventListener('unhandledrejection', (e) => log('unhandled rejection', e.reason instanceof Error ? e.reason : String(e.reason)));
+log('boot', navigator.userAgent, 'secure:', window.isSecureContext, 'isolated:', window.crossOriginIsolated);
 boot();

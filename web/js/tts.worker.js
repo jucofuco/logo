@@ -2,6 +2,7 @@
 import * as ort from '../vendor/ort.wasm.min.mjs';
 import { TextToSpeech, UnicodeProcessor, styleFromJson, writeWavFile } from './supertonic.js';
 import * as store from './store.js';
+import { log } from './log.js';
 
 const decoder = new TextDecoder();
 const styles = new Map();
@@ -15,6 +16,7 @@ async function readFile(path, provided) {
 }
 
 async function load({ vendorURL, files }) {
+    log('worker load', 'files from page:', Object.keys(files ?? {}), 'isolated:', self.crossOriginIsolated);
     ort.env.wasm.wasmPaths = vendorURL;
     // More than one thread needs a cross-origin isolated page (https plus headers).
     ort.env.wasm.numThreads = self.crossOriginIsolated ? Math.min(4, navigator.hardwareConcurrency || 1) : 1;
@@ -27,6 +29,7 @@ async function load({ vendorURL, files }) {
     for (const name of ['duration_predictor', 'text_encoder', 'vector_estimator', 'vocoder']) {
         const path = `onnx/${name}.onnx`;
         const buffer = await readFile(path, files);
+        log('worker creating session', name, buffer.byteLength);
         sessions.push(await ort.InferenceSession.create(new Uint8Array(buffer), {
             executionProviders: ['wasm'],
             graphOptimizationLevel: 'all',
@@ -34,6 +37,7 @@ async function load({ vendorURL, files }) {
         if (files) delete files[path];
     }
     tts = new TextToSpeech(cfgs, new UnicodeProcessor(indexer), ...sessions);
+    log('worker loaded');
 }
 
 async function style(voice, files) {
