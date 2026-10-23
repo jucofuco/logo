@@ -153,14 +153,18 @@ def hand(kind, x, y, rot=0, sc=1.25, mirror=False):
 # ---------- registry ----------
 # word id (as in logo/Vocabulary/structure.json) -> (Slovak label, function returning the SVG body)
 PICTOS = {}
+# Style 2 (simpler people, sets_v2/): only the pictograms that differ; the rest is taken from PICTOS.
+PICTOS_V2 = {}
 
 
-def picto(word_id, label):
-    """Registers a pictogram. `word_id` is the app's word id, `label` the Slovak word (for the preview)."""
+def picto(word_id, label, style=1):
+    """Registers a pictogram. `word_id` is the app's word id, `label` the Slovak word (for the preview).
+    style=2 registers the style 2 version of a word (see sets_v2/)."""
+    registry = PICTOS_V2 if style == 2 else PICTOS
     def register(fn):
-        if word_id in PICTOS:
-            raise ValueError(f'pictogram {word_id} is defined twice')
-        PICTOS[word_id] = (label, fn)
+        if word_id in registry:
+            raise ValueError(f'pictogram {word_id} (style {style}) is defined twice')
+        registry[word_id] = (label, fn)
         return fn
     return register
 
