@@ -1,16 +1,20 @@
 import AVFoundation
 import Observation
 
-/// Speaks words and sentences. Uses Supertonic once its sessions are loaded (a few seconds after
-/// launch), the built-in iOS voice for the language until then or if loading fails.
+/// Speaks words and sentences. Uses Supertonic once its model is downloaded and loaded,
+/// the built-in iOS voice for the language until then or if anything fails.
 @MainActor
 @Observable
 final class Speaker {
     enum ModelState: Equatable {
-        case loading, ready, failed
+        case missing
+        case downloading(Double)
+        case loading
+        case ready
+        case failed(String)
     }
 
-    private(set) var modelState: ModelState = .loading
+    private(set) var modelState: ModelState = .missing
     /// True while a Supertonic sentence is being generated, for a small spinner.
     private(set) var isThinking = false
 
@@ -25,10 +29,28 @@ final class Speaker {
     init() {
         // .playback so the kid hears it even with the silent switch on.
         try? AVAudioSession.sharedInstance().setCategory(.playback, mode: .spokenAudio)
-        loadEngine()
+        if SupertonicModel.isDownloaded { loadEngine() }
+    }
+
+    func downloadModel() {
+        if case .downloading = modelState { return }
+        modelState = .downloading(0)
+        Task {
+            do {
+                try await SupertonicModel.download { fraction in
+                    Task { @MainActor [weak self] in
+                        if case .downloading = self?.modelState { self?.modelState = .downloading(fraction) }
+                    }
+                }
+                loadEngine()
+            } catch {
+                modelState = .failed("Download failed. Check the connection and try again.")
+            }
+        }
     }
 
     private func loadEngine() {
+        modelState = .loading
         Task.detached(priority: .userInitiated) {
             do {
                 let engine = try SupertonicEngine()
@@ -37,7 +59,7 @@ final class Speaker {
                     self.modelState = .ready
                 }
             } catch {
-                await MainActor.run { self.modelState = .failed }
+                await MainActor.run { self.modelState = .failed("Voice could not load.") }
             }
         }
     }

@@ -261,7 +261,7 @@ struct ContentView: View {
     }
 }
 
-/// Shows while the voice loads or if it could not load. Hidden once it works.
+/// Offers the Supertonic voice download until it is ready. Hidden once the voice works.
 private struct ModelBanner: View {
     let speaker: Speaker
 
@@ -269,12 +269,24 @@ private struct ModelBanner: View {
         switch speaker.modelState {
         case .ready:
             EmptyView()
+        case .missing:
+            row("Better voice, \(megabytes) MB") {
+                Button("Download") { speaker.downloadModel() }.buttonStyle(.borderedProminent)
+            }
+        case .downloading(let fraction):
+            row("Downloading voice") {
+                ProgressView(value: fraction).frame(width: 110)
+            }
         case .loading:
             row("Preparing voice") { ProgressView() }
-        case .failed:
-            row("Voice could not load, using the phone voice") { EmptyView() }
+        case .failed(let message):
+            row(message) {
+                Button("Retry") { speaker.downloadModel() }.buttonStyle(.bordered)
+            }
         }
     }
+
+    private var megabytes: Int { Int(SupertonicModel.totalSize / 1_000_000) }
 
     private func row(_ text: String, @ViewBuilder trailing: () -> some View) -> some View {
         HStack {

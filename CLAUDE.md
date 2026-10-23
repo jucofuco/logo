@@ -2,7 +2,7 @@
 
 Picture board (AAC) for kids: tap pictures to build a sentence, the app reads it aloud in Slovak.
 Slovak and Czech, with grammar (word forms). Voice is Supertonic 3 (on-device ONNX TTS,
-https://supertonic3.github.io/) bundled in the app, with the iOS system voice as fallback. Scaffolded from `~/bettersocial` (snipoff).
+https://supertonic3.github.io/) downloaded in the app on a tap, with the iOS system voice as fallback. Scaffolded from `~/bettersocial` (snipoff).
 
 ## Environment
 
@@ -36,18 +36,17 @@ xcrun devicectl device process launch --device 00008101-000601560A28001E --termi
 - `logo/Vocabulary/structure.json`: what is shown where (core words, folders, order, colors, pictures; pictures are emoji until the owner's pictograms arrive). `words.sk.json` / `words.cs.json`: every word id with its forms (noun cases, verb present, adjective genders, preposition case). Same ids in both files. Edit these for vocabulary changes.
 - `logo/Grammar.swift`: `Grammar.render` turns the sentence (word ids) into text: object case after a verb, verb form by subject, "do školy" after ísť, adjective gender by subject or next noun (`attr`), "a/alebo" keeps the case. Off switch in Settings ("Word forms").
 - `logo/SettingsView.swift`: language, word forms on/off, child boy/girl, voice (10 presets, tap to hear), appearance.
-- `logo/Speech/Speaker.swift`: speaks words/sentences, caches audio per language+voice+text, plays in silent mode, falls back to `AVSpeechSynthesizer` (sk-SK / cs-CZ) while Supertonic loads or if it fails.
-- `logo/Speech/SupertonicEngine.swift`: `SupertonicModel` (voice list, bundle path) and the `SupertonicEngine` actor (synthesis, 8 steps, voice styles loaded on first use).
+- `logo/Speech/Speaker.swift`: speaks words/sentences, caches audio per language+voice+text, plays in silent mode, falls back to `AVSpeechSynthesizer` (sk-SK / cs-CZ) until Supertonic is ready or if it fails. Owns the model state (missing/downloading/loading/ready/failed).
+- `logo/Speech/SupertonicEngine.swift`: `SupertonicModel` downloads ~398 MB (model + 10 voices) from Hugging Face (pinned revision of `supertone-oss-archive/supertonic-3`) into Application Support when the owner taps Download in the app; `SupertonicEngine` actor runs synthesis (8 steps, voice styles loaded on first use).
 - `logo/Speech/SupertonicHelper.swift`: vendored upstream Swift inference code (MIT), keep unchanged. Package: `onnxruntime-swift-package-manager` (module `OnnxRuntimeBindings`).
-- `Scripts/fetch_model.sh`: downloads the ~398 MB model + 10 voices into `Model/` (git-ignored). `project.yml` bundles `Model/` into the app, so run `sh Scripts/fetch_model.sh` once before the first generate/build.
 - `Scripts/make_icon.py`: draws the app icon.
 - `logo/Theme.swift`: colors, fonts, `.card()`, `.eyebrow()`, `Appearance` (System/Light/Dark) + `.followsAppearance()`. Copied from hardoff/snipoff (see `~/bettersocial/docs/design.md` "Reusing it in another app") - same violet accent; change `uiAccent`/`accent` if this app wants its own brand color.
 - `logo/Assets.xcassets`: `LaunchBackground` (matches `Theme.background`) and `AppIcon`.
-- `docs/plan-grammar-czech.md`: the plan this was built from (done, except where this file differs: folder JSON is `logo/Vocabulary/`, noun person flag is `isPerson`, plus the "Word forms" switch and 10 voices).
+- `docs/plan-grammar-czech.md`: the plan this was built from (done, except where this file differs: folder JSON is `logo/Vocabulary/`, noun person flag is `isPerson`, plus the "Word forms" switch and 10 voices; Part 4 was reverted, the model is downloaded in the app).
 
 ## Current status
 
-Grammar, Czech, voices and bundled model written (2026-10-23), not yet built on the Mac. The app is about 400 MB because the model is inside it.
+Grammar, Czech and voices written (2026-10-23), not yet built on the Mac. The voice model is downloaded inside the app (Download button), not bundled, because it is too big for git.
 Next: owner's pictograms instead of emoji. Owner should check the Slovak and Czech forms in `words.*.json`.
 Known limits: attributive adjectives (veľký) only get the right case after a verb ("chcem veľkú loptu"), not after a preposition; animate masculine accusative is not handled; "SPP?" from the owner's tree is left out (meaning unclear).
 
