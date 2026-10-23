@@ -31,7 +31,31 @@ struct BenchmarkVariant: Identifiable, Sendable {
     }
 
     var isDownloaded: Bool {
-        id == "original" ? SupertonicModel.isDownloaded : files.allSatisfy(isPresent)
+        id == "original" ? SupertonicModel.isDownloaded : files.allSatisfy(isPresent) && hasConfig
+    }
+
+    private static let configFiles = ["tts.json", "unicode_indexer.json"]
+
+    private var hasConfig: Bool {
+        Self.configFiles.allSatisfy { FileManager.default.fileExists(atPath: directory.appending(path: $0).path) }
+    }
+
+    /// The two small config files are the same for every variant, so they are copied from the
+    /// original model. Run before loading, so an interrupted download cannot leave them out.
+    func ensureConfig() throws {
+        guard id != "original" else { return }
+        let fm = FileManager.default
+        for name in Self.configFiles {
+            let dest = directory.appending(path: name)
+            if fm.fileExists(atPath: dest.path) { continue }
+            let source = SupertonicModel.localURL("onnx/\(name)")
+            guard fm.fileExists(atPath: source.path) else {
+                throw CocoaError(.fileNoSuchFile, userInfo: [
+                    NSLocalizedDescriptionKey: "\(name) is missing. Download the voice first.",
+                ])
+            }
+            try fm.copyItem(at: source, to: dest)
+        }
     }
 }
 
@@ -104,6 +128,7 @@ enum BenchmarkWork {
     ) -> BenchmarkResult {
         do {
             report("\(variant.title): loading")
+            try variant.ensureConfig()
             let env = try ORTEnv(loggingLevel: .warning)
             let started = Date()
             let tts = try loadTextToSpeech(variant.directory.path, false, env, threads)
@@ -199,13 +224,7 @@ final class BenchmarkRunner {
                     }
                     done += file.size
                 }
-                // The small config files are the same for every variant.
-                for name in ["tts.json", "unicode_indexer.json"] {
-                    let dest = variant.directory.appending(path: name)
-                    if !fm.fileExists(atPath: dest.path) {
-                        try fm.copyItem(at: SupertonicModel.localURL("onnx/\(name)"), to: dest)
-                    }
-                }
+                try variant.ensureConfig()
                 progress[variant.id] = nil
             } catch {
                 progress[variant.id] = nil
