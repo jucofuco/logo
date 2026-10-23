@@ -79,6 +79,10 @@ def happy_eye(cx, cy):
 # ---------- cropped upper body (bleeds off bottom edge) ----------
 def torso(dx=0, top=64):
     x = 50 + dx
+    if STYLE == 2:
+        # narrower body with the arms marked beside it
+        s = P(f'M{x-30} 104 V{top+20} Q{x-30} {top+2} {x} {top} Q{x+30} {top+2} {x+30} {top+20} V104 Z', SHIRT)
+        return s + P(f'M{x-20} {top+7} Q{x-23} {top+24} {x-21} 104 M{x+20} {top+7} Q{x+23} {top+24} {x+21} 104')
     return P(f'M{x-36} 104 V{top+24} Q{x-36} {top+2} {x} {top} Q{x+36} {top+2} {x+36} {top+24} V104 Z', SHIRT)
 
 
@@ -103,6 +107,9 @@ def arm_back(d, width=11):
 
 
 def arm_fill(d, width=11):
+    if STYLE == 2:
+        # the arm keeps its outline over the body, so arm and body stay apart
+        return P(d, 'none', width + 2 * W, L) + P(d, 'none', width, SHIRT)
     return P(d, 'none', width, SHIRT)
 
 
@@ -174,7 +181,9 @@ HAND_POINT = ('<path d="M-6.2 0 C-7.6 -1.6 -8.1 -4.2 -8.1 -7 L-8 -11.4 L-7.7 -23
 
 def hand(kind, x, y, rot=0, sc=1.25, mirror=False):
     """kind: 'open', 'grip' or 'point'. `mirror` makes it a left hand."""
-    w = round(W / sc, 2); w2 = round(1.4 / sc, 2)
+    if STYLE == 2:
+        sc *= 0.82   # hands in proportion to the thinner arms
+    w = round(W / sc, 2); w2 = round(_sw(1.4) / sc, 2)
     t = {'open': HAND_OPEN, 'grip': HAND_GRIP, 'point': HAND_POINT}[kind]
     sx = -sc if mirror else sc
     return f'<g transform="translate({x} {y}) rotate({rot}) scale({sx} {sc})">' + t.format(SK=SK, L=L, w=w, w2=w2) + '</g>'
