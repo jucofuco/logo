@@ -72,7 +72,7 @@ enum SupertonicModel {
         try? dir.setResourceValues(values)
     }
 
-    private static func downloadFile(_ url: URL, to dest: URL, received: @escaping @Sendable (Int64) -> Void) async throws {
+    static func downloadFile(_ url: URL, to dest: URL, received: @escaping @Sendable (Int64) -> Void) async throws {
         try await withCheckedThrowingContinuation { (cont: CheckedContinuation<Void, Error>) in
             let task = URLSession.shared.downloadTask(with: url) { tmp, response, error in
                 if let error { return cont.resume(throwing: error) }

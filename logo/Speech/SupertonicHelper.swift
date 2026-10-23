@@ -1,6 +1,8 @@
 // Vendored from github.com/supertone-oss-archive/supertonic (swift/Sources/Helper.swift, MIT).
-// Upstream ONNX inference for Supertonic 3, unchanged except `wavData` at the bottom.
-// Only `SupertonicEngine` uses it; it is not thread safe, keep it inside that actor.
+// Upstream ONNX inference for Supertonic 3, unchanged except `wavData` at the bottom and the
+// `threads` parameter of `loadTextToSpeech`.
+// Used by `SupertonicEngine` and `BenchmarkWork`, each with its own `TextToSpeech`; one instance
+// is not thread safe, so never share it between threads.
 
 import Foundation
 import Accelerate
@@ -810,7 +812,7 @@ func loadVoiceStyle(_ voiceStylePaths: [String], verbose: Bool) throws -> Style 
     return Style(ttl: ttlValue, dp: dpValue)
 }
 
-func loadTextToSpeech(_ onnxDir: String, _ useGpu: Bool, _ env: ORTEnv) throws -> TextToSpeech {
+func loadTextToSpeech(_ onnxDir: String, _ useGpu: Bool, _ env: ORTEnv, _ threads: Int = 0) throws -> TextToSpeech {
     if useGpu {
         throw NSError(domain: "TTS", code: 1, userInfo: [NSLocalizedDescriptionKey: "GPU mode is not supported yet"])
     }
@@ -819,6 +821,8 @@ func loadTextToSpeech(_ onnxDir: String, _ useGpu: Bool, _ env: ORTEnv) throws -
     let cfgs = try loadCfgs(onnxDir)
     
     let sessionOptions = try ORTSessionOptions()
+    // Added for logo: 0 keeps ONNX Runtime's own choice, the speed test sets it.
+    if threads > 0 { try sessionOptions.setIntraOpNumThreads(Int32(threads)) }
     
     let dpPath = "\(onnxDir)/duration_predictor.onnx"
     let textEncPath = "\(onnxDir)/text_encoder.onnx"

@@ -53,6 +53,10 @@ struct SettingsView: View {
                     }
                 }
 
+                Section("Developer") {
+                    NavigationLink("Speed test") { BenchmarkView() }
+                }
+
                 Section("Appearance") {
                     Picker("Appearance", selection: $appearance) {
                         ForEach(Appearance.allCases) { Text($0.title).tag($0) }
