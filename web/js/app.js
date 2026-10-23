@@ -141,11 +141,11 @@ $('forms-list').addEventListener('click', (e) => {
 // ---------------------------------------------------------------- cards
 
 function tile(id) {
-    return `<button class="tile" data-word="${esc(id)}">${pic(id, structure.pictures[id] ?? '❓')}<span class="lbl">${esc(label(id, words(), settings.child))}</span></button>`;
+    return `<button class="tile" data-word="${esc(id)}"><span class="lbl">${esc(label(id, words(), settings.child))}</span>${pic(id, structure.pictures[id] ?? '❓')}</button>`;
 }
 
 function folderTile(folder) {
-    return `<button class="tile" style="--c:${COLORS[folder.color] ?? COLORS.gray}" data-folder="${esc(folder.id)}"><span class="folder">${ICONS.folder}</span>${pic(folder.icon, folder.picture)}<span class="lbl">${esc(words()[`folder.${folder.id}`].base)}</span></button>`;
+    return `<button class="tile folder-tile" style="--c:${COLORS[folder.color] ?? COLORS.gray}" data-folder="${esc(folder.id)}"><span class="folder">${ICONS.folder}</span><span class="lbl">${esc(words()[`folder.${folder.id}`].base)}</span>${pic(folder.icon, folder.picture)}</button>`;
 }
 
 function renderPage() {
