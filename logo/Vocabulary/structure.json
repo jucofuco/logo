@@ -8,8 +8,8 @@
     {"id": "feelings", "picture": "😊", "icon": "happy", "color": "pink", "words": ["happy", "love", "sad", "surprised", "angry", "curious", "embarrassed", "bored", "scared", "sick", "hot", "cold"]},
     {"id": "places", "picture": "🏠", "icon": "home", "color": "purple", "words": ["home", "school", "zoo", "sea", "shop", "park", "bathroom", "library", "cinema", "museum", "restaurant", "shoppingMall", "classroom", "pool", "clinic"]},
     {"id": "people", "picture": "👨‍👩‍👧", "icon": "we", "color": "yellow", "words": ["me", "he", "she", "they", "we", "you", "meAcc", "us", "mom", "dad", "brother", "sister", "grandma", "grandpa", "teacher"]},
-    {"id": "abc", "picture": "🔤", "color": "teal", "words": ["letter.a", "letter.b", "letter.c", "letter.d", "letter.e", "letter.f", "letter.g", "letter.h", "letter.i", "letter.j", "letter.k", "letter.l", "letter.m", "letter.n", "letter.o", "letter.p", "letter.q", "letter.r", "letter.s", "letter.t", "letter.u", "letter.v", "letter.w", "letter.x", "letter.y", "letter.z"]},
-    {"id": "numbers", "picture": "🔢", "color": "indigo", "words": ["number.0", "number.1", "number.2", "number.3", "number.4", "number.5", "number.6", "number.7", "number.8", "number.9"]},
+    {"id": "abc", "picture": "🔤", "icon": "abc", "color": "teal", "words": ["letter.a", "letter.b", "letter.c", "letter.d", "letter.e", "letter.f", "letter.g", "letter.h", "letter.i", "letter.j", "letter.k", "letter.l", "letter.m", "letter.n", "letter.o", "letter.p", "letter.q", "letter.r", "letter.s", "letter.t", "letter.u", "letter.v", "letter.w", "letter.x", "letter.y", "letter.z"]},
+    {"id": "numbers", "picture": "🔢", "icon": "numbers", "color": "indigo", "words": ["number.0", "number.1", "number.2", "number.3", "number.4", "number.5", "number.6", "number.7", "number.8", "number.9"]},
     {"id": "more", "picture": "💬", "icon": "and", "color": "gray", "words": ["colors", "and", "or", "but", "although", "with", "without", "another", "on", "from", "if", "big", "medium", "small", "like"]}
   ],
   "pictures": {

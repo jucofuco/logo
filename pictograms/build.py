@@ -36,11 +36,11 @@ for word_id, (label, draw) in kit.PICTOS.items():
 # The web app reads this to know which words have a pictogram (the others show their emoji).
 (out / 'index.json').write_text(json.dumps(sorted(kit.PICTOS)), encoding='utf-8')
 
-# Which app words have a pictogram (letters and numbers are drawn as text by the app).
+# Which app words and folder icons have a pictogram.
 structure = json.loads((VOCABULARY / 'structure.json').read_text(encoding='utf-8'))
 words = json.loads((VOCABULARY / 'words.sk.json').read_text(encoding='utf-8'))
-app_ids = list(dict.fromkeys(structure['core'] + [w for f in structure['folders'] for w in f['words']]))
-app_ids = [i for i in app_ids if not i.startswith(('letter.', 'number.'))]
+app_ids = list(dict.fromkeys(structure['core'] + [w for f in structure['folders'] for w in f['words']]
+                             + [f['icon'] for f in structure['folders'] if 'icon' in f]))
 missing = [i for i in app_ids if i not in kit.PICTOS]
 extra = [i for i in kit.PICTOS if i not in app_ids]
 
@@ -57,7 +57,7 @@ html = ['<!doctype html><meta charset="utf-8"><title>Pictograms</title><style>'
         ''.join(card(i, label, draw()) for i, (label, draw) in kit.PICTOS.items()),
         '</div>',
         f'<h2>App words without a pictogram ({len(missing)} of {len(app_ids)})</h2><ul>',
-        ''.join(f'<li>{words[i]["base"]} <small>({i})</small></li>' for i in missing),
+        ''.join(f'<li>{words[i]["base"] if i in words else i} <small>({i})</small></li>' for i in missing),
         '</ul>',
         f'<h2>Pictograms not used by the app yet ({len(extra)})</h2><p>{", ".join(extra) or "none"}</p>']
 (HERE / 'preview.html').write_text(''.join(html), encoding='utf-8')
