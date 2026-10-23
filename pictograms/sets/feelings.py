@@ -50,6 +50,8 @@ def scared():
     s += E(50, 70, 5, 6.5, '#B5413D')
     s += P('M84 36 Q80 43 81 46 A3.6 3.6 0 0 0 88 46 Q89 43 84 36 Z', TEAR, 1.4)
     s += hand('open', 22, 92, 12, 1.3) + hand('open', 78, 92, -12, 1.3, mirror=True)
+    for d in ('M17 112 L21.4 98', 'M83 112 L78.6 98'):
+        s += P(d, 'none', 14 + 2 * W, L) + P(d, 'none', 14, SHIRT)
     s += P('M5 50 Q8 54 5 58 M95 50 Q92 54 95 58', sw=2)
     return s
 

@@ -116,7 +116,7 @@ def ask():
     s += place(person('me', look=2), 24, 52, 0.66)
     d = 'M28 104 Q32 88 46 84'
     s += arm_c(d, SHIRT, 9)
-    s += hand('open', 46, 84, 95, 1.05)
+    s += hand('open', 45, 84.5, 78, 1.05)
     s += P('M8 4 H38 Q42 4 42 8 V26 Q42 30 38 30 H26 L20 36 L20 30 H8 Q4 30 4 26 V8 Q4 4 8 4 Z', '#FFFFFF')
     s += P('M17 12 Q17 8.5 23 8.5 Q29 8.5 29 13 Q29 17 23 18.5 V21', 'none', 3) + C(23, 25.5, 1.8, L, 0)
     return s
@@ -220,8 +220,8 @@ def enter():
             x, y = 13 + c * 22, 17 + r * 26
             fill = '#F6C453' if (r, c) == (1, 1) else '#ECEFF4'
             s += P(f'M{x+3} {y} H{x+15} Q{x+18} {y} {x+18} {y+3} V{y+17} Q{x+18} {y+20} {x+15} {y+20} H{x+3} Q{x} {y+20} {x} {y+17} V{y+3} Q{x} {y} {x+3} {y} Z', fill)
-    s += P('M98 104 Q86 92 74 86', 'none', 15 + 2 * W, L) + P('M98 104 Q86 92 74 86', 'none', 15, SHIRT)
-    s += point_hand(72, 84, -50, 1.4, mirror=True)
+    s += P('M98 104 Q84 90 70 83', 'none', 15 + 2 * W, L) + P('M98 104 Q84 90 70 83', 'none', 15, SHIRT)
+    s += point_hand(68.5, 81, -52, 1.4, mirror=True)
     s += P('M30 44 L25 39 M28 58 L22 60 M44 36 V30', sw=2.2, stroke=ARROW)
     return s
 
@@ -229,14 +229,15 @@ def enter():
 @picto('stir', 'miešať')
 def stir():
     # a hand stirs in a bowl, round arrow shows the motion
-    s = P('M60 63 L78 30', 'none', 5 + 2 * W, L) + P('M60 63 L78 30', 'none', 5, WOOD)
+    s = ''
     s += P('M12 62 H88 Q88 92 50 92 Q12 92 12 62 Z', '#8DBBEA')
     s += E(50, 62, 38, 7, '#F7EBD3')
     s += P('M40 62 Q46 58 52 62 M26 64 Q30 61 34 64', sw=1.6, stroke='#C9A97A')
-    s += P('M56 62 L60 63 L64 62', sw=1.6)
+    s += P('M68 62 L72 63.5 L76 62', sw=1.6)
     s += arrow_to('M66 40 A26 10 0 1 0 30 52', 30, 52, 100, sw=4, size=6)
-    s += P('M92 104 Q90 60 80 40', 'none', 13 + 2 * W, L) + P('M92 104 Q90 60 80 40', 'none', 13, SHIRT)
-    s += hand('grip', 80, 41, -25, 1.2)
+    s += P('M92 104 Q84 72 78 46', 'none', 13 + 2 * W, L) + P('M92 104 Q84 72 78 46', 'none', 13, SHIRT)
+    s += P('M73 64 L81 19', 'none', 5 + 2 * W, L) + P('M73 64 L81 19', 'none', 5, WOOD)
+    s += hand('grip', 77.5, 44, 9, 1.2)
     return s
 
 

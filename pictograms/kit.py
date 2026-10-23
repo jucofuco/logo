@@ -114,20 +114,38 @@ def face_small(x, y, mood='smile', look=0):
     return s
 
 
-# detailed open hand, wrist at origin, fingers toward -y
-HAND_OPEN = ('<path d="M-5 -2 L-12.8 -11.6 A2.1 2.1 0 0 1 -9.6 -14.2 L-3.5 -8 Z" fill="{SK}" stroke="{L}" stroke-width="{w}"/>'
-             '<path d="M-6 0 C-7 -4 -7.6 -8 -7.6 -11 L-7.6 -20 A1.9 1.9 0 0 1 -3.8 -20 L-3.8 -12.5 L-3.8 -22.6 A1.9 1.9 0 0 1 0 -22.6 '
-             'L0 -12.5 L0 -21.6 A1.9 1.9 0 0 1 3.8 -21.6 L3.8 -12.5 L3.8 -18.4 A1.8 1.8 0 0 1 7.4 -18.4 L7.4 -9 C7.4 -5 6.8 -2 6 0 Z" '
+# Hands: wrist at origin, fingers toward -y, thumb toward -x (a right hand seen from the palm).
+# One smooth outline each, so they read clearly at phone size.
+# open palm
+HAND_OPEN = ('<path d="M-6 0 C-6.6 -2.5 -7 -4.5 -7.2 -6.6 C-9.2 -7.6 -11.6 -10 -13.4 -12.8 '
+             'A2.2 2.2 0 0 1 -9.6 -15 C-8.6 -13.8 -7.9 -12.9 -7.3 -12.4 L-7.4 -20.6 A1.85 1.85 0 0 1 -3.7 -20.6 L-3.7 -14.6 '
+             'L-3.7 -22.7 A1.85 1.85 0 0 1 0 -22.7 L0 -14.6 '
+             'L0 -21.8 A1.85 1.85 0 0 1 3.7 -21.8 L3.7 -14.6 '
+             'L3.7 -18.6 A1.8 1.8 0 0 1 7.3 -18.6 L7.3 -10 C7.3 -5.6 6.8 -2.6 6 0 Z" fill="{SK}" stroke="{L}" stroke-width="{w}"/>'
+             '<path d="M-7.2 -6.6 C-5.6 -5.8 -4.4 -6.8 -4.6 -9.2" fill="none" stroke="{L}" stroke-width="{w2}"/>')
+
+# fist holding something that passes vertically through x = 0 (spoon, glass, hammer handle)
+HAND_GRIP = ('<path d="M-6 0 C-7.6 -1 -8.2 -3.5 -8.2 -6.5 L-8.2 -10.5 C-8.2 -14 -6 -15.6 -2.5 -15.6 L3 -15.6 '
+             'C6.4 -15.6 7.8 -13.6 7.8 -10.8 L7.8 -4.4 C7.8 -1.4 6 0 3 0 Z" fill="{SK}" stroke="{L}" stroke-width="{w}"/>'
+             '<path d="M2.2 -15.4 C5 -15 5.4 -11.4 2.4 -11.2 M2.4 -11.2 C5.4 -10.9 5.6 -7.2 2.6 -7.1 M2.6 -7.1 C5.4 -6.8 5.4 -3.2 2.8 -3" '
+             'fill="none" stroke="{L}" stroke-width="{w2}"/>'
+             '<path d="M-8 -9.5 C-6 -12.8 -2.5 -13.6 0.8 -12.6 C2.2 -12.2 2 -10.4 0.4 -10.4 C-2.6 -10.6 -5.4 -9.4 -7.4 -7.2" '
              'fill="{SK}" stroke="{L}" stroke-width="{w}"/>')
-# fist holding something, wrist at origin, object passes vertically through x≈0
-HAND_GRIP = ('<rect x="-7" y="-14" width="13" height="13" rx="4" fill="{SK}" stroke="{L}" stroke-width="{w}"/>'
-             '<path d="M-7 -10.8 H3 M-7 -7.6 H3 M-7 -4.4 H3" fill="none" stroke="{L}" stroke-width="{w2}"/>'
-             '<rect x="2" y="-18" width="5" height="11" rx="2.5" fill="{SK}" stroke="{L}" stroke-width="{w}"/>')
+
+# pointing: index finger out toward -y, the other fingers curled, thumb across them
+HAND_POINT = ('<path d="M-6.2 0 C-7.6 -1.6 -8.1 -4.2 -8.1 -7 L-8 -11.4 L-7.7 -23.6 A2.35 2.35 0 0 1 -3 -23.6 '
+              'L-2.8 -15.6 C-1.2 -16.8 1.6 -16.8 3 -15.4 C5.6 -15.8 7.8 -14 7.7 -11 '
+              'C7.9 -6.4 7.6 -2.8 5.8 -1 C4.8 -0.2 4 0 3 0 Z" fill="{SK}" stroke="{L}" stroke-width="{w}"/>'
+              '<path d="M3 -15.4 C3.4 -13.8 3.2 -12.4 2.2 -11.6 M1.6 -11.4 C4 -11.8 6.2 -11.4 7.8 -10.4 '
+              'M2 -7.2 C4.2 -7.6 6.2 -7.2 7.7 -6.2" fill="none" stroke="{L}" stroke-width="{w2}"/>'
+              '<path d="M-8 -8.6 C-5.4 -11.8 -1.2 -12.8 2.4 -11.4 C3.8 -10.8 3.4 -8.8 1.8 -9 C-1.2 -9.4 -4.6 -7.8 -7.4 -5.2" '
+              'fill="{SK}" stroke="{L}" stroke-width="{w}"/>')
 
 
 def hand(kind, x, y, rot=0, sc=1.25, mirror=False):
+    """kind: 'open', 'grip' or 'point'. `mirror` makes it a left hand."""
     w = round(W / sc, 2); w2 = round(1.4 / sc, 2)
-    t = HAND_OPEN if kind == 'open' else HAND_GRIP
+    t = {'open': HAND_OPEN, 'grip': HAND_GRIP, 'point': HAND_POINT}[kind]
     sx = -sc if mirror else sc
     return f'<g transform="translate({x} {y}) rotate({rot}) scale({sx} {sc})">' + t.format(SK=SK, L=L, w=w, w2=w2) + '</g>'
 

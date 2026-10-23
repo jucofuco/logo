@@ -112,17 +112,8 @@ def person(kind, mood='smile', look=0, shirt=None):
 
 
 # hand with the index finger out, wrist at origin, finger toward -y
-HAND_POINT = ('<rect x="-6.8" y="-30" width="5" height="19" rx="2.5" fill="{SK}" stroke="{L}" stroke-width="{w}"/>'
-              '<path d="M-7 -3 Q-8 -8 -7.5 -12 Q-7 -15.5 -3 -15.5 H4 Q8 -15.5 8 -11.5 V-5 Q8 0 3 0 H-3 Q-6.5 0 -7 -3 Z" '
-              'fill="{SK}" stroke="{L}" stroke-width="{w}"/>'
-              '<path d="M-1.5 -11.3 H6 M-1.5 -7.4 H6" fill="none" stroke="{L}" stroke-width="{w2}"/>'
-              '<path d="M-7.3 -8 Q-3 -5.5 1.5 -6.6" fill="none" stroke="{L}" stroke-width="{w2}"/>')
-
-
 def point_hand(x, y, rot=0, sc=1.25, mirror=False):
-    w = round(W / sc, 2); w2 = round(1.4 / sc, 2)
-    sx = -sc if mirror else sc
-    return f'<g transform="translate({x} {y}) rotate({rot}) scale({sx} {sc})">' + HAND_POINT.format(SK=SK, L=L, w=w, w2=w2) + '</g>'
+    return hand('point', x, y, rot, sc, mirror)
 
 
 def arrow_to(d, x, y, ang, color=ARROW, sw=5, size=7):
@@ -193,9 +184,9 @@ def teacher():
 
 def me_pointing(dx=0, mood='smile'):
     """The child pointing at his own chest (kit coordinates)."""
-    d = 'M78 104 Q80 92 69 88'
+    d = 'M92 104 Q91 82 80 80'
     s = arm_back(d) + torso(0, 59) + arm_fill(d) + headb(0, 36) + face_small(50, 38, mood)
-    s += point_hand(68, 89, -50, 1.15)
+    s += point_hand(79, 80, -84, 1.15, mirror=True)
     return s
 
 
