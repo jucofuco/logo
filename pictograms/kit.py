@@ -4,9 +4,15 @@ Every pictogram is drawn on a 100 x 100 canvas with one dark outline color and o
 flat fills, round line ends. Keep new pictograms inside these rules so the set looks like one family.
 """
 
+import os
+
 # ---------- style ----------
+# Style 2 (PICTO_STYLE=2, built into svg-v2/ by build.py): the same drawings with a thinner line and a
+# calmer, less cartoon-like face: small dot eyes, a small smile, no blush, a slightly smaller head.
+STYLE = int(os.environ.get('PICTO_STYLE', '1'))
 L = '#2A2A2A'          # outline
-W = 2                  # outline width, same everywhere
+W = 2 if STYLE == 1 else 1.3   # outline width, same everywhere
+BLUSH = '#F7A8A0'      # cheek color, left out in style 2
 SK = '#FAD7BE'         # skin
 HAIR = '#6B4226'
 SHIRT = '#8DBBEA'
@@ -23,17 +29,26 @@ GLASS = '#F2F6FA'
 
 
 # ---------- shapes ----------
+def _sw(sw):
+    """Style 2 thins the detail lines too. Thick strokes (limbs, symbols) and the outline width stay."""
+    if STYLE == 1 or sw == W or sw <= 0 or sw > 3.2:
+        return sw
+    return round(sw * 0.65, 2)
+
+
 def P(d, fill='none', sw=W, stroke=L):
-    return f'<path d="{d}" fill="{fill}" stroke="{stroke}" stroke-width="{sw}"/>'
+    return f'<path d="{d}" fill="{fill}" stroke="{stroke}" stroke-width="{_sw(sw)}"/>'
 
 
 def C(cx, cy, r, fill, sw=W, stroke=L):
-    return f'<circle cx="{cx}" cy="{cy}" r="{r}" fill="{fill}" stroke="{stroke}" stroke-width="{sw}"/>'
+    return f'<circle cx="{cx}" cy="{cy}" r="{r}" fill="{fill}" stroke="{stroke}" stroke-width="{_sw(sw)}"/>'
 
 
 def E(cx, cy, rx, ry, fill, sw=W, stroke=L, rot=0):
+    if STYLE == 2 and fill == BLUSH:
+        return ''
     t = f' transform="rotate({rot} {cx} {cy})"' if rot else ''
-    return f'<ellipse cx="{cx}" cy="{cy}" rx="{rx}" ry="{ry}" fill="{fill}" stroke="{stroke}" stroke-width="{sw}"{t}/>'
+    return f'<ellipse cx="{cx}" cy="{cy}" rx="{rx}" ry="{ry}" fill="{fill}" stroke="{stroke}" stroke-width="{_sw(sw)}"{t}/>'
 
 
 def arrow(d, heads, color, sw=3):
@@ -50,6 +65,8 @@ def face(skin=SK):
 
 
 def eye_open(cx, cy, r=5.2, pupil=2.6, py=0):
+    if STYLE == 2:
+        return C(cx, cy + py * 0.4, r * 0.4, L, 0)   # a small dot, no highlight
     # friendly solid eye with highlight (no sclera = no stare)
     rx = r * 0.72; ry = r * 0.95
     return E(cx, cy + py * 0.4, rx, ry, L, 0) + C(cx + rx * 0.35, cy + py * 0.4 - ry * 0.4, rx * 0.36, '#FFFFFF', 0)
@@ -66,6 +83,8 @@ def torso(dx=0, top=64):
 
 
 def headb(dx=0, head_y=36, r=19):
+    if STYLE == 2:
+        r *= 0.9
     x = 50 + dx
     nb = head_y + r + 5.5
     s = P(f'M{x-5.5} {head_y+r-4} V{nb} Q{x} {nb+3.5} {x+5.5} {nb} V{head_y+r-4}', SK)
@@ -102,6 +121,17 @@ def face_small(x, y, mood='smile', look=0):
         s += P(f'M{x-6} {y+12} Q{x-3} {y+9} {x} {y+12} Q{x+3} {y+15} {x+6} {y+12}', sw=2)
         return s
     s += eye_open(x - 6.5 + look, y, r=3.6) + eye_open(x + 6.5 + look, y, r=3.6)
+    if STYLE == 2:
+        # a small mouth line instead of the big open cartoon mouth
+        if mood == 'smile':
+            s += P(f'M{x-4.5} {y+9} Q{x} {y+12.5} {x+4.5} {y+9}')
+        elif mood in ('frown', 'worried'):
+            s += P(f'M{x-4} {y+12} Q{x} {y+8.8} {x+4} {y+12}')
+        elif mood == 'open':
+            s += E(x, y + 10.5, 2.2, 2.6, '#B5413D')
+        elif mood == 'neutral':
+            s += P(f'M{x-3} {y+10.5} H{x+3}')
+        return s
     if mood == 'smile':
         s += P(f'M{x-8} {y+8} Q{x} {y+9} {x+8} {y+8} Q{x+6} {y+16} {x} {y+16} Q{x-6} {y+16} {x-8} {y+8} Z', '#B5413D', 1.6)
     elif mood in ('frown', 'worried'):
