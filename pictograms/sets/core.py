@@ -35,3 +35,24 @@ def help_():
     s += hand('open', 70, 38, 4, 1.25)
     s += P('M82 12 Q86 18 82 24 M87 9 Q93 18 87 27', sw=2)
     return s
+
+
+from sets.people import me_pointing, place, point_hand  # noqa: E402
+
+
+@picto('me', 'ja')
+def me():
+    # the child points at his own chest
+    return place(me_pointing(), 50, 40, 1.1)
+
+
+@picto('dontWant', 'nechcem')
+def dont_want():
+    # the apple from `want`, but the child turns his head away and pushes it off with a flat palm
+    d = 'M48 84 Q62 74 64 58'
+    s = arm_back(d) + torso(-16, 61) + arm_fill(d) + headb(-18, 38) + face_small(31, 40, 'frown', look=-3)
+    s += hand('open', 65, 59, 12, 1.25)
+    s += C(86, 70, 9.5, '#E5534B') + P('M86 60.5 Q86 55 91 54', sw=1.8) + P('M86 59 Q90 53 95 56 Q91 60 86 59 Z', GREEN, 1.4)
+    xx = 'M78 22 L92 36 M92 22 L78 36'
+    s += P(xx, 'none', 8, L) + P(xx, 'none', 5, RED)
+    return s
