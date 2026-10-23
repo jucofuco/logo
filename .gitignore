@@ -6,3 +6,5 @@ web/model/
 web/vendor/
 web/model-q
 speech/
+pictograms/preview.html
+__pycache__/
