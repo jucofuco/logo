@@ -29,10 +29,17 @@ struct BenchmarkView: View {
                     .keyboardType(.URL)
             }
 
-            Section("Models") {
+            Section {
                 ForEach(BenchmarkCatalog.all) { variant in
                     row(variant)
                 }
+                if let error = runner.error {
+                    Text(error).font(.footnote).foregroundStyle(.red)
+                }
+            } header: {
+                Text("Models")
+            } footer: {
+                Text("Download a model first (the server above must be reachable, Tailscale on), then tick it to include it in the test.")
             }
 
             Section("Options") {
@@ -93,15 +100,7 @@ struct BenchmarkView: View {
     private func row(_ variant: BenchmarkVariant) -> some View {
         let downloaded = variant.isDownloaded
         return HStack(spacing: 12) {
-            Button {
-                if selected.contains(variant.id) { selected.remove(variant.id) } else { selected.insert(variant.id) }
-            } label: {
-                Image(systemName: selected.contains(variant.id) && downloaded ? "checkmark.circle.fill" : "circle")
-                    .font(.system(size: 22))
-                    .foregroundStyle(downloaded ? Theme.accent : Theme.faint)
-            }
-            .buttonStyle(.plain)
-            .disabled(!downloaded)
+            leading(variant, downloaded: downloaded)
 
             VStack(alignment: .leading, spacing: 2) {
                 Text(variant.title).foregroundStyle(Theme.text)
@@ -109,6 +108,32 @@ struct BenchmarkView: View {
             }
             Spacer()
             trailing(variant, downloaded: downloaded)
+        }
+    }
+
+    /// Tick box once the model is on the phone, download button before that.
+    @ViewBuilder
+    private func leading(_ variant: BenchmarkVariant, downloaded: Bool) -> some View {
+        if runner.progress[variant.id] != nil {
+            ProgressView()
+        } else if downloaded {
+            Button {
+                if selected.contains(variant.id) { selected.remove(variant.id) } else { selected.insert(variant.id) }
+            } label: {
+                Image(systemName: selected.contains(variant.id) ? "checkmark.circle.fill" : "circle")
+                    .font(.system(size: 22))
+                    .foregroundStyle(Theme.accent)
+            }
+            .buttonStyle(.borderless)
+        } else if variant.id == "original" {
+            Image(systemName: "exclamationmark.circle").font(.system(size: 22)).foregroundStyle(Theme.faint)
+        } else {
+            Button {
+                runner.download(variant, base: base)
+            } label: {
+                Image(systemName: "arrow.down.circle.fill").font(.system(size: 22)).foregroundStyle(Theme.accent)
+            }
+            .buttonStyle(.borderless)
         }
     }
 
@@ -126,10 +151,10 @@ struct BenchmarkView: View {
             .buttonStyle(.borderless)
             .font(.caption)
         } else {
-            Button("\(variant.totalSize / 1_000_000) MB") {
+            Button("Download \(variant.totalSize / 1_000_000) MB") {
                 runner.download(variant, base: base)
             }
-            .buttonStyle(.bordered)
+            .buttonStyle(.borderedProminent)
             .font(.caption)
         }
     }
