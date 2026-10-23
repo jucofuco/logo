@@ -18,6 +18,8 @@ export const FILES = [
     { path: 'voice_styles/M5.json', size: 291469 },
 ];
 
+export const SIZES = Object.fromEntries(FILES.map((f) => [f.path, f.size]));
+
 export const totalSize = FILES.reduce((sum, f) => sum + f.size, 0);
 
 /** Preset voices: F1 to F5 women, M1 to M5 men. All work for every language. */

@@ -71,33 +71,46 @@ export class Speaker {
     async init() {
         try { await navigator.storage?.persist?.(); } catch { /* best effort */ }
         const stored = await store.hasAll(FILES).catch(() => false);
-        if (stored) await this.#load(null);
-        else this.#set('missing');
+        if (!stored) return this.#set('missing');
+        if (!(await this.#load(null))) {
+            // What is stored cannot be read (Safari sometimes loses it), so start from a clean download.
+            await store.clear();
+            this.#set('missing');
+        }
     }
 
     async download() {
         if (this.state === 'downloading' || this.state === 'loading') return;
         this.progress = 0;
         this.#set('downloading');
-        const kept = {}; // files IndexedDB refused, handed straight to the worker
+        // The worker gets the files straight from here, so it never depends on IndexedDB right
+        // after a download. Saving them for the next visit is best effort.
+        const files = {};
+        let storeBroken = false;
         let done = 0;
         try {
             for (const file of FILES) {
-                if (await store.has(file.path, file.size).catch(() => false)) { done += file.size; continue; }
                 const base = done;
                 const buffer = await fetchWithProgress(`model/${file.path}`, file.size, (n) => {
                     this.progress = (base + n) / totalSize;
                     this.#onChange();
                 });
                 done += file.size;
-                try { await store.put(file.path, buffer, file.size); } catch (error) { log('store.put failed', file.path, error); kept[file.path] = buffer; }
+                files[file.path] = buffer;
+                if (storeBroken) continue;
+                try {
+                    await store.put(file.path, buffer, file.size);
+                } catch (error) {
+                    log('store.put failed', file.path, error);
+                    storeBroken = true;
+                }
             }
         } catch (error) {
             console.error(error);
             log('download failed', error);
             return this.#set('failed', 'Download failed. Check the connection and try again.');
         }
-        await this.#load(Object.keys(kept).length ? kept : null);
+        await this.#load(files);
     }
 
     #call(message, transfer = []) {
@@ -123,10 +136,12 @@ export class Speaker {
                 files ? Object.values(files) : [],
             );
             this.#set('ready');
+            return true;
         } catch (error) {
             console.error(error);
             log('load failed', error);
             this.#set('failed', `Voice could not load: ${error.message}`);
+            return false;
         }
     }
 
