@@ -1,13 +1,13 @@
 """Style 2 people, modelled on the European AAC standard (ARASAAC-like), nothing anime.
 
-Whole figures seen from the front with natural proportions (small head), thick black outlines,
+Whole figures seen from the front with natural proportions (small head), thin dark outlines,
 flat saturated colors, very light skin, a minimal face (dot eyes, a small mouth, a small nose for
 adults), long sleeves with the arms hanging beside the body, trousers or a dress, shoes.
 Feelings are a plain white face circle with dot eyes and a simple mouth.
 """
 from kit import *
 
-W2 = 2.6                 # thicker outline than style 1
+W2 = 1.3                 # thin outline (style 1 uses 2)
 SK2 = '#FCEBDF'          # very light skin
 HAIR_BROWN = '#9A5B2E'
 HAIR_BLOND = '#E8C04A'
@@ -53,11 +53,11 @@ def hair2(x, y, r, style, color, part):
                     + P2(f'M{x + r * 0.9} {y - r * 0.5} Q{x + r * 2.2} {y - r * 0.9} {x + r * 2} {y + r * 0.7} Q{x + r * 1.4} {y + r * 0.1} {x + r * 0.8} {y + r * 0.2} Z', color))
         return ''
     if style == 'bald':
-        return (P2(f'M{x - r * 1.0} {y + r * 0.2} Q{x - r * 1.05} {y - r * 0.5} {x - r * 0.65} {y - r * 0.75} Q{x - r * 0.75} {y - r * 0.2} {x - r * 0.8} {y + r * 0.25} Z', color, 1.6)
-                + P2(f'M{x + r * 1.0} {y + r * 0.2} Q{x + r * 1.05} {y - r * 0.5} {x + r * 0.65} {y - r * 0.75} Q{x + r * 0.75} {y - r * 0.2} {x + r * 0.8} {y + r * 0.25} Z', color, 1.6))
+        return (P2(f'M{x - r * 1.0} {y + r * 0.2} Q{x - r * 1.05} {y - r * 0.5} {x - r * 0.65} {y - r * 0.75} Q{x - r * 0.75} {y - r * 0.2} {x - r * 0.8} {y + r * 0.25} Z', color, W2)
+                + P2(f'M{x + r * 1.0} {y + r * 0.2} Q{x + r * 1.05} {y - r * 0.5} {x + r * 0.65} {y - r * 0.75} Q{x + r * 0.75} {y - r * 0.2} {x + r * 0.8} {y + r * 0.25} Z', color, W2))
     if style == 'curly_short':
         return P2(f'M{x - r * 1.05} {y - r * 0.05} Q{x - r * 1.35} {y - r * 0.9} {x - r * 0.6} {y - r * 1.15} Q{x - r * 0.2} {y - r * 1.5} {x + r * 0.3} {y - r * 1.2} '
-                  f'Q{x + r * 1.3} {y - r * 1.25} {x + r * 1.05} {y - r * 0.05} Q{x + r * 0.7} {y - r * 0.55} {x} {y - r * 0.6} Q{x - r * 0.7} {y - r * 0.55} {x - r * 1.05} {y - r * 0.05} Z', color, 1.8)
+                  f'Q{x + r * 1.3} {y - r * 1.25} {x + r * 1.05} {y - r * 0.05} Q{x + r * 0.7} {y - r * 0.55} {x} {y - r * 0.6} Q{x - r * 0.7} {y - r * 0.55} {x - r * 1.05} {y - r * 0.05} Z', color, W2)
     if style == 'curly':
         return P2(f'M{x - r * 1.0} {y - r * 0.1} Q{x - r * 0.9} {y - r * 1.05} {x} {y - r * 1.08} Q{x + r * 0.9} {y - r * 1.05} {x + r * 1.0} {y - r * 0.1} '
                   f'Q{x + r * 0.5} {y - r * 0.7} {x - r * 0.1} {y - r * 0.55} Q{x - r * 0.6} {y - r * 0.5} {x - r * 1.0} {y - r * 0.1} Z', color, 0)
@@ -134,31 +134,31 @@ def figure(who, x=50, mood='smile', foot=96):
     # top
     if not p.get('dress'):
         s += P2(f'M{x - bw} {hip + 1} V{sh + 4} Q{x - bw} {sh} {x - bw * 0.55} {sh} H{x + bw * 0.55} Q{x + bw} {sh} {x + bw} {sh + 4} V{hip + 1} Z', p['top'])
-        s += P2(f'M{x - 2.6} {sh} Q{x} {sh + 2.6} {x + 2.6} {sh}', sw=1.6)
+        s += P2(f'M{x - 2.6} {sh} Q{x} {sh + 2.6} {x + 2.6} {sh}', sw=1.1)
     if p.get('tie'):
-        s += P2(f'M{x} {sh + 1} L{x - 1.8} {sh + 4} L{x} {sh + 14} L{x + 1.8} {sh + 4} Z', '#D9254A', 1.4)
+        s += P2(f'M{x} {sh + 1} L{x - 1.8} {sh + 4} L{x} {sh + 14} L{x + 1.8} {sh + 4} Z', '#D9254A', W2)
     # neck and head
-    s += P2(f'M{x - 2.2} {hy + r * 0.9} V{sh + 0.5} H{x + 2.2} V{hy + r * 0.9}', SK2, 1.8)
+    s += P2(f'M{x - 2.2} {hy + r * 0.9} V{sh + 0.5} H{x + 2.2} V{hy + r * 0.9}', SK2)
     s += head_full(x, hy, r, who, mood)
     return s
 
 
 def emotion_face(mood):
-    """Feelings: a plain white face with a thick outline, dot eyes, brows for some moods, a simple mouth."""
-    s = P2('M44 88 V96 H56 V88', L, 0) + C(50, 50, 38, '#FFFFFF', 6)
+    """Feelings: a plain face with a thin outline, dot eyes, brows for some moods, a simple mouth."""
+    s = P2('M45 88 V96 H55 V88', SK2) + C(50, 50, 38, SK2, 2)
     eyes = {'surprised': 5.6, 'scared': 5.6}.get(mood, 4.8)
     if mood == 'tired':
-        s += P2('M30 46 Q36 50 42 46 M58 46 Q64 50 70 46', sw=4)
+        s += P2('M30 46 Q36 50 42 46 M58 46 Q64 50 70 46', sw=2.6)
     else:
         s += C(36, 46, eyes, L, 0) + C(64, 46, eyes, L, 0)
     brows = {'sad': 'M26 38 Q33 32 41 34 M59 34 Q67 32 74 38', 'angry': 'M27 33 L43 40 M73 33 L57 40',
              'scared': 'M28 34 Q35 28 42 31 M58 31 Q65 28 72 34', 'surprised': 'M28 33 Q35 26 42 30 M58 30 Q65 26 72 33'}
     if mood in brows:
-        s += P2(brows[mood], sw=4.5)
+        s += P2(brows[mood], sw=2.6)
     mouths = {'smile': 'M34 64 Q50 78 66 64', 'sad': 'M36 72 Q50 60 64 72', 'angry': 'M36 71 Q50 63 64 71',
               'neutral': 'M38 68 H62', 'tired': 'M42 68 H58'}
     if mood in ('surprised', 'scared'):
         s += E(50, 68, 7, 9, L, 0)
     else:
-        s += P2(mouths.get(mood, mouths['neutral']), sw=5)
+        s += P2(mouths.get(mood, mouths['neutral']), sw=3)
     return s
