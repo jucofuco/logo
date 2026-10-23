@@ -37,7 +37,8 @@ xcrun devicectl device process launch --device 00008101-000601560A28001E --termi
 - `logo/Speech/SupertonicEngine.swift`: `SupertonicModel` downloads ~398 MB of model files from Hugging Face (pinned revision of `supertone-oss-archive/supertonic-3`, voice F1) into Application Support on a tap; `SupertonicEngine` actor runs synthesis (lang `sk`, 8 steps).
 - `logo/Speech/SupertonicHelper.swift`: vendored upstream Swift inference code (MIT), keep unchanged. Package: `onnxruntime-swift-package-manager` (module `OnnxRuntimeBindings`).
 - `logo/Theme.swift`: colors, fonts, `.card()`, `.eyebrow()`, `Appearance` (System/Light/Dark) + `.followsAppearance()`. Copied from hardoff/snipoff (see `~/bettersocial/docs/design.md` "Reusing it in another app") - same violet accent; change `uiAccent`/`accent` if this app wants its own brand color.
-- `logo/Assets.xcassets/LaunchBackground`: launch screen color, matches `Theme.background`. No app icon yet.
+- `logo/Assets.xcassets/LaunchBackground`: launch screen color, matches `Theme.background`.
+- `logo/Assets.xcassets/AppIcon`: drawn by `Scripts/make_icon.py` (pure Python, no deps), rerun after changing it.
 
 ## Current status
 
