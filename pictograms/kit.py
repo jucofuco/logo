@@ -105,7 +105,8 @@ def face_small(x, y, mood='smile', look=0):
     if mood == 'smile':
         s += P(f'M{x-8} {y+8} Q{x} {y+9} {x+8} {y+8} Q{x+6} {y+16} {x} {y+16} Q{x-6} {y+16} {x-8} {y+8} Z', '#B5413D', 1.6)
     elif mood in ('frown', 'worried'):
-        s += P(f'M{x-6} {y+14} Q{x} {y+7} {x+6} {y+14}', sw=2.2)
+        # small filled sad mouth, high on the face: a bare arch near the chin read as a moustache
+        s += P(f'M{x-5.5} {y+13} Q{x} {y+6.5} {x+5.5} {y+13} Q{x} {y+10.5} {x-5.5} {y+13} Z', '#B5413D', 1.6)
     elif mood == 'open':
         s += E(x, y + 11, 3.2, 3.8, '#B5413D', 1.6)
     elif mood == 'neutral':

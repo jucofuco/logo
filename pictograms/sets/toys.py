@@ -121,12 +121,19 @@ def blocks():
     return s
 
 
+def _hoop_arc(d):
+    return (P(d, 'none', 4 + 2 * W, L) + P(d, 'none', 4, '#E75480')
+            + f'<path d="{d}" fill="none" stroke="#FBD34D" stroke-width="4" stroke-dasharray="5 7"/>')
+
+
 @picto('hoop', 'obruč')
 def hoop():
-    s = '<circle cx="50" cy="50" r="34" fill="none" stroke="#2A2A2A" stroke-width="15"/>'
-    s += '<circle cx="50" cy="50" r="34" fill="none" stroke="#E75480" stroke-width="11"/>'
-    s += '<circle cx="50" cy="50" r="34" fill="none" stroke="#FBD34D" stroke-width="11" stroke-dasharray="13.3 26.7" stroke-dashoffset="-6"/>'
-    s += P('M22 34 Q30 20 44 16', sw=2.6, stroke='#FFFFFF')
+    # like ARASAAC (game of hula hoop): a thin hoop spinning around a child's waist
+    from sets.verbs import kid_full
+    s = _hoop_arc('M8 62 A42 9 0 0 1 92 62')
+    s += kid_full(50)
+    s += _hoop_arc('M92 62 A42 9 0 0 1 8 62')
+    s += P('M4 48 Q8 44 14 44 M86 44 Q92 44 96 48', sw=2.2)
     return s
 
 

@@ -57,8 +57,14 @@ def classroom():
     return s
 
 
-@picto('zoo', 'zoo')
-def zoo():
+def _scaled(body, k, tx, ty):
+    """Scales a drawing about the origin, keeps the outline width W."""
+    import re
+    body = re.sub(r'stroke-width="([\d.]+)"', lambda m: f'stroke-width="{round(float(m.group(1)) / k, 2)}"', body)
+    return f'<g transform="translate({tx} {ty}) scale({k})">{body}</g>'
+
+
+def _giraffe():
     Y, SP = '#F4C24E', '#B9824A'
     s = P('M32 94 Q40 56 42 32 L62 34 Q64 62 68 94 Z', Y)
     for (x, y, r) in [(48, 46, 4.5), (56, 60, 5), (46, 70, 5), (60, 80, 4.5), (50, 36, 3)]:
@@ -67,9 +73,27 @@ def zoo():
     s += E(40, 22, 7, 4, Y, 1.8, rot=30)
     s += E(55, 28, 14, 11, Y, rot=-8) + E(70, 33, 8, 6.5, '#E8B060', 1.8, rot=10)
     s += E(75, 32, 1.8, 1.4, L, 0) + eye_open(58, 25, r=3.8)
-    s += P('M6 78 H94 M6 90 H94', 'none', 5, L) + P('M6 78 H94 M6 90 H94', 'none', 2, '#C98B52')
-    for x in (12, 36, 64, 88):
-        s += P(f'M{x - 4} 70 H{x + 4} V96 H{x - 4} Z', '#C98B52', 1.8)
+    return s
+
+
+@picto('zoo', 'zoo')
+def zoo():
+    # like ARASAAC (zoo): several animals, one of them behind cage bars, so it is the place, not one animal
+    s = _scaled(_giraffe(), 0.72, 40, 4)
+    # lion in a cage
+    s += P('M4 40 H58 V94 H4 Z', '#F7E3B5')
+    s += C(31, 68, 19, '#D9822B')
+    s += C(21, 57, 4, '#F4C24E') + C(41, 57, 4, '#F4C24E') + C(31, 68, 12, '#F4C24E')
+    s += eye_open(26.5, 65, r=3) + eye_open(35.5, 65, r=3)
+    s += P('M28.5 71 H33.5 L31 74 Z', L, 1.2) + P('M31 74 V76 M27.5 77 Q31 79 31 76 Q31 79 34.5 77', sw=1.4)
+    s += P('M4 40 H58 V94 H4 Z', 'none', 3)
+    for x in (12, 20, 42, 50):
+        s += P(f'M{x} 40 V94', 'none', 2.6, L)
+    s += P('M2 36 H60 V42 H2 Z', '#5A5F66')
+    # fence on the giraffe side
+    s += P('M60 78 H96 M60 88 H96', 'none', 5, L) + P('M60 78 H96 M60 88 H96', 'none', 2, '#C98B52')
+    for x in (68, 88):
+        s += P(f'M{x - 4} 72 H{x + 4} V96 H{x - 4} Z', '#C98B52', 1.8)
     return s
 
 
@@ -210,32 +234,40 @@ def museum():
 
 @picto('restaurant', 'reštaurácia')
 def restaurant():
-    s = P('M26 62 Q26 26 50 26 Q74 26 74 62 Z', '#D8DEE9')
-    s += C(50, 22, 4.6, '#AEB6C4') + P('M34 50 Q36 38 44 34', sw=2.4, stroke='#FFFFFF')
-    s += P('M20 62 H80 Q80 70 74 70 H26 Q20 70 20 62 Z', '#C5CCD8')
-    # fork and knife
-    s += P('M10 30 V46 Q10 52 14 52 Q18 52 18 46 V30 M14 30 V52 M14 52 V84', 'none', 5, L) if False else ''
-    s += P('M8 28 V44 Q8 50 13 50 Q18 50 18 44 V28 M13 28 V50', sw=2) + P('M13 50 V82', 'none', 6, L) + P('M13 50 V82', 'none', 2.6, '#ECEFF4')
-    s += P('M88 28 Q96 34 90 54 H88 Z', '#ECEFF4', 2) + P('M88 54 V82', 'none', 6, L) + P('M88 54 V82', 'none', 2.6, '#ECEFF4')
-    s += P('M4 82 H96 V94 H4 Z', RED)
-    for x in (4, 28, 52, 76):
-        s += P(f'M{x + 12} 82 h12 v6 h-12 Z M{x} 88 h12 v6 h-12 Z', '#FFFFFF', 0)
-    s += P('M4 82 H96 V94 H4 Z', 'none')
+    # like ARASAAC (restaurant): a building whose sign is a plate with fork and knife,
+    # and a table with a checked cloth seen through the window
+    s = P('M8 36 H92 V94 H8 Z', WALL)
+    # sign above: plate, fork, knife
+    s += P('M26 4 H74 Q78 4 78 8 V26 Q78 30 74 30 H26 Q22 30 22 26 V8 Q22 4 26 4 Z', '#FFFFFF')
+    s += C(50, 17, 9.5, '#ECEFF4', 1.8) + C(50, 17, 5.5, '#FFFFFF', 1.4)
+    s += P('M32 9 V15 Q32 18 34.5 18 Q37 18 37 15 V9 M34.5 9 V25', sw=1.8)
+    s += P('M64 9 Q69 12 67 19 H65 V25 M65 9 V19', '#ECEFF4', 1.8)
+    s += P('M32 30 V36 M68 30 V36', sw=2)
+    # green awning band
+    s += P('M4 36 H96 V44 Q90 50 84 44 Q78 50 72 44 Q66 50 60 44 Q54 50 48 44 Q42 50 36 44 Q30 50 24 44 Q18 50 12 44 Q8 48 4 44 Z', '#5FAF7A')
+    # window with a table
+    s += P('M14 54 H60 V86 H14 Z', GLASSB, 1.8)
+    s += P('M18 72 H56 V77 H18 Z', '#FFFFFF', 1.4)
+    for x in (18, 26, 34, 42, 50):
+        s += P(f'M{x} 72 h4 v5 h-4 Z', RED, 0)
+    s += P('M18 72 H56 V77 H18 Z', 'none', 1.4) + P('M24 77 V86 M50 77 V86', sw=1.8)
+    s += E(30, 70, 5, 1.6, '#FFFFFF', 1.2) + E(44, 70, 5, 1.6, '#FFFFFF', 1.2)
+    # door
+    s += P('M68 56 H86 V94 H68 Z', '#B98D5F', 1.8) + C(72, 76, 1.4, L, 0)
     return s
 
 
 @picto('pool', 'bazén')
 def pool():
+    # like ARASAAC (swimming pool): the pool, its water and one ladder, nothing else
     s = P('M4 40 H96 V48 H4 Z', '#E3E7EE')
     s += P('M8 48 H92 V86 Q92 92 86 92 H14 Q8 92 8 86 Z', '#6EC1F0')
-    s += P('M8 62 H92 M8 76 H92 M30 48 V92 M50 48 V92 M70 48 V92', sw=1, stroke='#9BD3F2')
     s += P('M8 48 Q16 44 24 48 T40 48 T56 48 T72 48 T92 48', sw=2, stroke='#FFFFFF')
-    s += P('M16 74 V28 Q16 12 32 12', 'none', 7, L) + P('M16 74 V28 Q16 12 32 12', 'none', 3, '#D8DEE9')
-    s += P('M32 12 Q40 12 40 28 V40', 'none', 7, L) + P('M32 12 Q40 12 40 28 V40', 'none', 3, '#D8DEE9')
-    s += P('M16 58 H34 M16 68 H34', sw=2, stroke='#FFFFFF')
-    s += '<ellipse cx="70" cy="52" rx="17" ry="7" fill="none" stroke="#2A2A2A" stroke-width="12"/>'
-    s += '<ellipse cx="70" cy="52" rx="17" ry="7" fill="none" stroke="#E5534B" stroke-width="8"/>'
-    s += '<ellipse cx="70" cy="52" rx="17" ry="7" fill="none" stroke="#FFFFFF" stroke-width="8" stroke-dasharray="8.6 8.6"/>'
+    s += P('M56 64 Q62 60 68 64 T80 64 M22 78 Q28 74 34 78 T46 78', sw=2, stroke='#FFFFFF')
+    for x in (58, 78):
+        d = f'M{x} 74 V28 Q{x} 16 {x + 9} 16 Q{x + 14} 16 {x + 14} 24'
+        s += P(d, 'none', 7, L) + P(d, 'none', 3, '#D8DEE9')
+    s += P('M58 54 H78 M58 64 H78', 'none', 6, L) + P('M58 54 H78 M58 64 H78', 'none', 2.4, '#D8DEE9')
     return s
 
 

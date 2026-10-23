@@ -21,7 +21,7 @@ def drink():
     return s
 
 
-from sets.people import arrow_to, place, point_hand, ARROW  # noqa: E402
+from sets.people import arrow_to, arm_c, person, place, point_hand, ARROW  # noqa: E402
 
 PANTS = '#4A6FA5'
 WOOD = '#C98F55'
@@ -83,13 +83,15 @@ def see():
 
 @picto('need', 'potrebovať')
 def need():
-    # worried child reaches with both hands for a glass of water, red "!" mark
-    d = 'M34 104 Q42 84 52 76'
-    s = arm_back(d) + torso(-24, 61) + arm_fill(d) + headb(-24, 38) + face_small(26, 40, 'worried', look=2)
-    s += P('M70 50 L92 50 L89 92 L73 92 Z', GLASS) + P('M70.9 62 H91.1 L89 90 H73 Z', WATER, 0) + P('M70 62 H92', sw=1.6)
-    s += P('M70 50 L92 50 L89 92 L73 92 Z')
-    s += hand('open', 53, 76, 68, 1.1)
-    s += P('M78 8 L80 30 H86 L88 8 Z', RED) + C(83, 38, 4, RED)
+    # like ARASAAC (necesitar): a hand from above points firmly down at the thing, "this, I need it";
+    # no face and no reaching, so it does not look like chcem
+    s = P('M8 94 H92', sw=2.4)
+    s += P('M38 56 L64 56 L61 93 L41 93 Z', GLASS) + P('M38.8 66 H63.2 L61 92 H41 Z', WATER, 0) + P('M38.6 66 H63.4', sw=1.6)
+    s += P('M38 56 L64 56 L61 93 L41 93 Z') + P('M43 60 V86', sw=1.8, stroke='#FFFFFF')
+    d = 'M44 -6 V7'
+    s += P(d, 'none', 17 + 2 * W, L) + P(d, 'none', 17, SHIRT)
+    s += point_hand(44.5, 6, 180, 1.55)
+    s += P('M36 46 L41 49 M66 46 L61 49', sw=2.4, stroke=ARROW)
     return s
 
 
@@ -108,12 +110,15 @@ def make():
 
 @picto('ask', 'požiadať')
 def ask():
-    # holds out an open palm (please, give me) with a question bubble
-    d = 'M58 104 Q62 84 72 78'
-    s = arm_back(d) + torso(-20, 63) + arm_fill(d) + headb(-20, 42) + face_small(30, 44, 'smile', look=2)
-    s += hand('open', 72, 79, 100, 1.25)
-    s += P('M60 8 H92 Q96 8 96 12 V38 Q96 42 92 42 H72 L64 50 L66 42 H60 Q56 42 56 38 V12 Q56 8 60 8 Z', '#FFFFFF')
-    s += P('M69 18 Q69 13 76 13 Q83 13 83 19 Q83 24 76 26 V30', 'none', 3.4) + C(76, 35.5, 2, L, 0)
+    # like ARASAAC (pedir): a request to another person; the child holds out an open hand to mom,
+    # the question bubble says it is a request
+    s = place(person('mom'), 80, 40, 0.74)
+    s += place(person('me', look=2), 24, 52, 0.66)
+    d = 'M28 104 Q32 88 46 84'
+    s += arm_c(d, SHIRT, 9)
+    s += hand('open', 46, 84, 95, 1.05)
+    s += P('M8 4 H38 Q42 4 42 8 V26 Q42 30 38 30 H26 L20 36 L20 30 H8 Q4 30 4 26 V8 Q4 4 8 4 Z', '#FFFFFF')
+    s += P('M17 12 Q17 8.5 23 8.5 Q29 8.5 29 13 Q29 17 23 18.5 V21', 'none', 3) + C(23, 25.5, 1.8, L, 0)
     return s
 
 

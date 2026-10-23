@@ -67,18 +67,20 @@ def socks():
 
 
 def _shoe(sw):
-    s = P('M8 38 Q8 30 16 30 H32 Q36 42 50 44 L64 48 Q88 52 92 66 V74 H8 Z', '#E5534B', sw)
-    s += P('M8 72 H92 V80 Q92 84 88 84 H12 Q8 84 8 80 Z', '#FFFFFF', sw)
-    s += P('M62 48 Q76 52 84 60 L92 66 H66 Z', '#F07A72', sw)
+    # rounded toe and heel, so the shoe ends cleanly instead of looking cut off
+    s = P('M8 38 Q8 30 16 30 H32 Q36 42 50 44 L64 48 Q88 52 92 68 Q93 74 86 74 H14 Q8 74 8 68 Z', '#E5534B', sw)
+    s += P('M6 72 H90 Q95 72 95 77 Q95 84 88 84 H12 Q6 84 6 78 Z', '#FFFFFF', sw)
+    s += P('M62 48 Q76 52 84 60 Q90 64 91 68 H66 Z', '#F07A72', sw)
     s += P('M36 34 L44 44 M44 32 L52 44 M52 36 L58 46', sw=sw, stroke='#FFFFFF')
-    s += P('M8 62 H92', sw=sw * 0.8, stroke='#B5413D')
+    s += P('M8 62 H90', sw=sw * 0.8, stroke='#B5413D')
     return s
 
 
 @picto('shoes', 'topánky')
 def shoes():
-    k = 0.66
-    return _sc(_shoe(W / k), k, 30, 6) + _sc(_shoe(W / k), k, 6, 38)
+    # the pair, both shoes well inside the frame
+    k = 0.68
+    return _sc(_shoe(W), k, 28, -8) + _sc(_shoe(W), k, 3, 30)
 
 
 @picto('cap', 'šiltovka')
@@ -137,13 +139,13 @@ def sunglasses():
 
 @picto('scarf', 'šatka')
 def scarf():
-    s = C(50, 56, 27, SK)
-    s += eye_open(41, 58, r=3.8) + eye_open(59, 58, r=3.8)
-    s += E(34, 66, 3.4, 2.2, ANGRY, 0) + E(66, 66, 3.4, 2.2, ANGRY, 0)
-    s += P('M44 68 Q50 74 56 68', sw=1.8)
-    s += P('M18 66 Q10 16 50 12 Q90 16 82 66 Q82 74 76 78 Q74 50 50 40 Q26 50 24 78 Q18 74 18 66 Z', RED)
-    for (x, y) in [(30, 24), (50, 18), (70, 24), (22, 42), (78, 42), (40, 30), (60, 30)]:
-        s += C(x, y, 2.6, '#FFFFFF', 0)
-    s += P('M26 80 Q50 92 74 80 L84 96 Q50 90 16 96 Z', RED)
-    s += C(50, 84, 5, '#B5413D', 1.8)
+    # like ARASAAC (pañuelo): the kerchief alone, a soft square of dotted cloth with one corner
+    # folded over; no person, so it is not read as a girl
+    cloth = 'M14 22 Q32 16 52 14 Q72 12 88 16 Q84 36 86 56 Q88 74 84 88 Q64 84 46 86 Q28 88 12 86 Q16 66 14 46 Q12 32 14 22 Z'
+    s = P(cloth, RED)
+    s += P('M20 26 Q50 20 82 22 Q79 50 80 82 Q48 80 18 82 Q21 54 20 26 Z', 'none', 1.4, '#FFFFFF')
+    for (x, y) in [(30, 34), (50, 30), (70, 32), (30, 54), (50, 50), (40, 70), (24, 72), (60, 68)]:
+        s += C(x, y, 3, '#FFFFFF', 0)
+    s += P('M84 88 Q64 84 46 86 Q66 70 86 56 Q88 74 84 88 Z', '#F07A72')
+    s += C(72, 76, 2.4, '#FFFFFF', 0)
     return s

@@ -258,14 +258,14 @@ def eggs():
 
 @picto('chicken', 'kurča')
 def chicken():
-    s = E(50, 90, 46, 7, '#ECEFF4')
-    s += P('M50 10 Q84 10 86 44 Q88 74 50 78 Q12 74 14 44 Q16 10 50 10 Z', '#E1953F')
-    s += E(36, 30, 4, 9, '#F2B974', 0, rot=20)
-    s += P('M44 52 Q50 62 56 52', sw=1.6, stroke='#A8652E') + P('M50 20 V40', sw=1.6, stroke='#C97A2B')
-    for sgn in (-1, 1):
-        x = 50 + sgn * 28
-        s += P(f'M{x + sgn * 4} 78 L{x + sgn * 15} 88', 'none', 8, L) + P(f'M{x + sgn * 4} 78 L{x + sgn * 15} 88', 'none', 4, '#FFFFFF')
-        s += C(x + sgn * 17, 89, 4, '#FFFFFF')
-        s += E(x, 68, 13, 9, '#C97A2B', rot=sgn * -40)
-        s += E(x - sgn * 2, 65, 3, 5, '#E0A25E', 0, rot=sgn * -40)
+    # like ARASAAC (pollo asado): roast chicken seen from the side on a plate, legs up with white
+    # bone ends; no lines in the middle of the body, so it does not read as a face
+    s = E(50, 84, 46, 9, '#ECEFF4') + E(50, 82, 34, 5, 'none', 1.4, '#C5CCD8')
+    s += P('M12 62 Q10 38 34 32 Q58 26 76 40 Q90 52 86 70 Q82 82 60 82 H28 Q14 80 12 62 Z', '#E1953F')
+    s += P('M20 52 Q24 40 38 37', sw=2.6, stroke='#F2B974')
+    for (x0, y0, x1, y1) in [(64, 46, 80, 18), (50, 46, 58, 14)]:
+        s += P(f'M{x0} {y0} L{x1} {y1}', 'none', 8, L) + P(f'M{x0} {y0} L{x1} {y1}', 'none', 4, '#FFFFFF')
+        s += C(x1 - 2.6, y1 - 1, 3.4, '#FFFFFF') + C(x1 + 2.6, y1 + 1.4, 3.4, '#FFFFFF')
+        s += P(f'M{x0 - 8} {y0 + 16} Q{x0 - 10} {y0 - 2} {x0 + (x1 - x0) * 0.35} {y0 + (y1 - y0) * 0.35} '
+               f'Q{x0 + 12} {y0 + 2} {x0 + 8} {y0 + 16} Q{x0} {y0 + 22} {x0 - 8} {y0 + 16} Z', '#C97A2B')
     return s

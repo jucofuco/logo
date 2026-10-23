@@ -13,10 +13,11 @@ Family (decided once, reuse it):
   dad      short dark hair and a beard, green shirt
   grandma  grey hair with a bun, glasses, purple top
   grandpa  bald with grey sides, grey moustache, glasses, brown cardigan
-  teacher  man with short hair, glasses, white shirt and red tie, in front of a blackboard
+  teacher  man with short hair, glasses, white shirt and red tie, beside a blackboard, pointing at it
+           (ARASAAC's teacher is a man or a woman at the board; its first one, 2457, is a man)
 Pronoun marks: an orange arrow points at who is meant (on, ona, oni); the child points at
-himself (ja, my); a hand from the viewer points at the group (vy); an arrow coming in to the
-child means "me / us as the object" (mňa, nás).
+himself (ja, my); a hand from the viewer points at the group (vy). Object forms look exactly
+like the subject forms (mňa = ja, nás = my), as in ARASAAC (yo/me/mí and nosotros/nos share one symbol).
 """
 import math
 import re
@@ -175,10 +176,16 @@ def grandpa():
 
 @picto('teacher', 'učiteľ')
 def teacher():
-    s = P('M4 8 H96 V66 H4 Z', '#3F6E55', W) + P('M8 12 H92 V62 H8 Z', '#2F5A44', 1.2)
-    s += P('M14 22 Q20 16 26 22 T38 22', sw=1.8, stroke='#FFFFFF') + P('M14 34 H34 M14 44 H28', sw=1.8, stroke='#FFFFFF')
-    s += P('M72 20 L80 34 H64 Z', sw=1.8, stroke='#FFFFFF')
-    s += place(person('teacher'), 50, 50, 0.95)
+    # like ARASAAC: the teacher stands beside the blackboard and points at what is written on it
+    s = P('M4 10 H62 V60 H4 Z', '#3F6E55', W) + P('M8 14 H58 V56 H8 Z', '#2F5A44', 1.2)
+    s += P('M14 26 Q19 20 24 26 T34 26', sw=1.8, stroke='#FFFFFF') + P('M14 38 H32 M14 48 H26', sw=1.8, stroke='#FFFFFF')
+    s += P('M46 22 L53 34 H39 Z', sw=1.8, stroke='#FFFFFF')
+    s += P('M4 60 H62', 'none', 4 + 2 * W, L) + P('M4 60 H62', 'none', 4, '#B98D5F')
+    d = 'M60 74 Q46 72 40 58'
+    s += P(d, 'none', 9 + 2 * W, L)
+    s += place(person('teacher'), 74, 46, 0.72)
+    s += P(d, 'none', 9, '#FFFFFF')
+    s += point_hand(40, 59, -35, 0.95)
     return s
 
 
@@ -240,16 +247,11 @@ def we():
 
 @picto('meAcc', 'mňa')
 def me_acc():
-    s = place(me_pointing(), 42, 42, 0.95)
-    s += arrow_to('M98 30 Q86 46 74 56', 74, 56, 140)
-    return s
+    # ARASAAC uses one symbol for yo / me / mí: the same picture as ja
+    return place(me_pointing(), 50, 40, 1.1)
 
 
 @picto('us', 'nás')
 def us():
-    s = C(46, 64, 42, HILITE, 0)
-    s += place(person('sister', shirt='#F6C453'), 20, 58, 0.62)
-    s += place(person('dad', shirt='#8DCFC1'), 72, 54, 0.66)
-    s += place(me_pointing(), 46, 60, 0.74)
-    s += arrow_to('M98 6 Q90 22 80 26', 80, 26, 150)
-    return s
+    # ARASAAC uses one symbol for nosotros / nos: the same picture as my
+    return we()
