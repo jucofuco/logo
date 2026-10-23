@@ -46,6 +46,7 @@ export class Speaker {
     thinking = false;
 
     #onChange;
+    #engine;
     #worker = null;
     #calls = new Map();
     #nextCall = 0;
@@ -57,8 +58,9 @@ export class Speaker {
     #busy = false;
     #queued = null;
 
-    constructor(onChange) {
+    constructor(onChange, engine = 'cpu') {
         this.#onChange = onChange;
+        this.#engine = engine;
     }
 
     #set(state, message = '') {
@@ -132,7 +134,7 @@ export class Speaker {
             };
             this.#worker.onerror = (event) => { console.error('worker', event.message); log('worker error', event.message, event.filename, event.lineno); };
             await this.#call(
-                { type: 'load', vendorURL: new URL('../vendor/', import.meta.url).href, files },
+                { type: 'load', vendorURL: new URL('../vendor/', import.meta.url).href, files, engine: this.#engine },
                 files ? Object.values(files) : [],
             );
             this.#set('ready');

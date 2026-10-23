@@ -2,7 +2,11 @@
 // Inference code for Supertonic 3 with ONNX Runtime Web. Changes: the ort import path, and the
 // file loading functions were replaced by styleFromJson (files come from IndexedDB, see tts.worker.js).
 
-import * as ort from '../vendor/ort.wasm.min.mjs';
+// The worker picks the ONNX Runtime build (CPU or GPU) and hands it over before anything runs.
+let ort;
+export function setOrt(module) {
+    ort = module;
+}
 
 // Available languages for multilingual TTS
 export const AVAILABLE_LANGS = ['en', 'ko', 'ja', 'ar', 'bg', 'cs', 'da', 'de', 'el', 'es', 'et', 'fi', 'fr', 'hi', 'hr', 'hu', 'id', 'it', 'lt', 'lv', 'nl', 'pl', 'pt', 'ro', 'ru', 'sk', 'sl', 'sv', 'tr', 'uk', 'vi', 'na'];

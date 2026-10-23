@@ -14,7 +14,7 @@ const COLORS = {
     purple: '#AF52DE', yellow: '#FFCC00', teal: '#30B0C7', indigo: '#5856D6', gray: '#8E8E93',
 };
 const STEPS = [['Fastest', 4], ['Fast', 6], ['Normal', 8], ['Best', 12]];
-const DEFAULTS = { language: 'sk', child: 'boy', grammar: true, voice: 'F1', speed: 1, steps: 8 };
+const DEFAULTS = { language: 'sk', child: 'boy', grammar: true, voice: 'F1', speed: 1, steps: 8, engine: 'cpu' };
 
 const $ = (id) => document.getElementById(id);
 const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
@@ -29,7 +29,7 @@ function saveSettings() {
 let structure;
 let wordsByLang;
 const state = { sentence: [], folder: null };
-const speaker = new Speaker(() => { renderBanner(); renderSpeak(); });
+const speaker = new Speaker(() => { renderBanner(); renderSpeak(); }, settings.engine);
 
 const words = () => wordsByLang[settings.language];
 const rendered = () => render(state.sentence, words(), settings.child, settings.grammar);
@@ -214,6 +214,7 @@ function renderSettings() {
         <div class="group"><h3>Voice</h3><div class="list">${VOICES.map((v) =>
             `<button data-voice="${v}" class="${settings.voice === v ? 'on' : ''}"><span>${voiceTitle(v)}</span><span>${settings.voice === v ? '✓' : ''}</span></button>`).join('')}</div></div>
         <div class="group"><h3>Speed</h3><div class="range"><input type="range" id="speed" min="0.8" max="1.3" step="0.05" value="${settings.speed}"><span id="speed-val">${Number(settings.speed).toFixed(2)}</span></div></div>
+        <div class="group"><h3>Engine</h3>${seg('engine', [['CPU', 'cpu'], ['GPU', 'gpu']])}<p>GPU is faster but experimental, it needs https. The page reloads when you change it.</p></div>
         <div class="group"><h3>Quality</h3>${seg('steps', STEPS.map(([t, v]) => [t, v]))}<p>Fewer steps are faster but sound rougher.</p></div>`;
 }
 
@@ -223,6 +224,7 @@ $('settings-body').addEventListener('click', (e) => {
         const name = option.parentElement.dataset.seg;
         settings[name] = name === 'steps' ? Number(option.dataset.value) : option.dataset.value;
         saveSettings();
+        if (name === 'engine') return location.reload();
         if (name === 'language') {
             // Hand-picked forms are text in the old language.
             state.sentence.forEach((item) => delete item.override);

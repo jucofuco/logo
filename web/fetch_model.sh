@@ -1,7 +1,7 @@
 #!/bin/sh
 # Downloads what the web app needs but git does not keep (both folders are git-ignored):
 #  - web/model/: the Supertonic 3 model and the 10 preset voices
-#  - web/vendor/: ONNX Runtime Web (CPU/WASM build)
+#  - web/vendor/: ONNX Runtime Web (CPU/WASM and GPU/WebGPU builds)
 # The web server serves these and the browser downloads from it. Safe to rerun.
 set -eu
 cd "$(dirname "$0")"
@@ -64,4 +64,8 @@ fetch_vendor() { # file size-in-bytes
 fetch_vendor ort.wasm.min.mjs 48259
 fetch_vendor ort-wasm-simd-threaded.mjs 20856
 fetch_vendor ort-wasm-simd-threaded.wasm 11210254
+# GPU (WebGPU) build, used when Settings > Engine is GPU
+fetch_vendor ort.min.mjs 357568
+fetch_vendor ort-wasm-simd-threaded.jsep.mjs 44677
+fetch_vendor ort-wasm-simd-threaded.jsep.wasm 21872216
 echo "Ready: web/model/ and web/vendor/"

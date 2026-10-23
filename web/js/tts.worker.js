@@ -1,6 +1,5 @@
 // Runs Supertonic in a worker so the page does not freeze while a sentence is generated.
-import * as ort from '../vendor/ort.wasm.min.mjs';
-import { TextToSpeech, UnicodeProcessor, styleFromJson, writeWavFile } from './supertonic.js';
+import { TextToSpeech, UnicodeProcessor, setOrt, styleFromJson, writeWavFile } from './supertonic.js';
 import * as store from './store.js';
 import { log } from './log.js';
 import { SIZES, VOICES } from './model.js';
@@ -8,6 +7,7 @@ import { SIZES, VOICES } from './model.js';
 const decoder = new TextDecoder();
 const styles = new Map();
 let tts = null;
+let ort = null;
 
 /** A file handed over by the page (when IndexedDB could not keep it) or the stored one. */
 async function readFile(path, provided) {
@@ -16,11 +16,16 @@ async function readFile(path, provided) {
     return buffer;
 }
 
-async function load({ vendorURL, files }) {
-    log('worker load', 'files from page:', Object.keys(files ?? {}), 'isolated:', self.crossOriginIsolated);
+async function load({ vendorURL, files, engine }) {
+    // GPU needs WebGPU, which only exists on https pages. Without it the CPU build is used.
+    const useGpu = engine === 'gpu' && 'gpu' in navigator;
+    ort = await import(useGpu ? '../vendor/ort.min.mjs' : '../vendor/ort.wasm.min.mjs');
+    setOrt(ort);
     ort.env.wasm.wasmPaths = vendorURL;
     // More than one thread needs a cross-origin isolated page (https plus headers).
     ort.env.wasm.numThreads = self.crossOriginIsolated ? Math.min(4, navigator.hardwareConcurrency || 1) : 1;
+    log('worker load', 'engine', useGpu ? 'gpu' : 'cpu', '(asked', engine + ')', 'threads', ort.env.wasm.numThreads,
+        'cores', navigator.hardwareConcurrency, 'isolated', self.crossOriginIsolated, 'files from page:', Object.keys(files ?? {}).length);
 
     const cfgs = JSON.parse(decoder.decode(await readFile('onnx/tts.json', files)));
     const indexer = JSON.parse(decoder.decode(await readFile('onnx/unicode_indexer.json', files)));
@@ -32,7 +37,7 @@ async function load({ vendorURL, files }) {
         const buffer = await readFile(path, files);
         log('worker creating session', name, buffer.byteLength);
         sessions.push(await ort.InferenceSession.create(new Uint8Array(buffer), {
-            executionProviders: ['wasm'],
+            executionProviders: useGpu ? ['webgpu', 'wasm'] : ['wasm'],
             graphOptimizationLevel: 'all',
         }));
         if (files) delete files[path];
