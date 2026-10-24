@@ -8,6 +8,7 @@ struct SettingsView: View {
     @AppStorage("childGender") private var child = ChildGender.boy
     @AppStorage("grammar") private var grammar = true
     @AppStorage("voice") private var voice = SupertonicModel.defaultVoice
+    @AppStorage("pictureStyle") private var pictureStyle = PictureStyle.v1
     @AppStorage("appearance") private var appearance = Appearance.system
 
     var body: some View {
@@ -51,6 +52,17 @@ struct SettingsView: View {
                             }
                         }
                     }
+                }
+
+                Section {
+                    Picker("Pictures", selection: $pictureStyle) {
+                        ForEach(PictureStyle.allCases) { Text($0.title).tag($0) }
+                    }
+                    .pickerStyle(.segmented)
+                } header: {
+                    Text("Pictures")
+                } footer: {
+                    Text(pictureStyle.note)
                 }
 
                 Section("Developer") {

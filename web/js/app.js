@@ -13,6 +13,8 @@ const COLORS = {
     orange: '#FF9500', blue: '#0A84FF', green: '#34C759', red: '#FF3B30', pink: '#FF2D55',
     purple: '#AF52DE', yellow: '#FFCC00', teal: '#30B0C7', indigo: '#5856D6', gray: '#8E8E93',
 };
+/** Picture sets: 1 and 2 are our own drawings, 3 is Mulberry Symbols (own drawing where Mulberry has none). */
+const PICTURE_DIRS = { 1: 'pictograms', 2: 'pictograms-v2', 3: 'pictograms-mulberry' };
 const STEPS = [['Fastest', 4], ['Fast', 6], ['Normal', 8], ['Best', 12]];
 const DEFAULTS = { language: 'sk', child: 'boy', grammar: true, voice: 'F1', speed: 1, steps: 8, engine: 'cpu', pictureStyle: 1 };
 
@@ -51,7 +53,7 @@ const say = (text) => speaker.speak(text, settings.language, settings.voice, { s
 /** The pictogram of a word if there is one, else its emoji (or letter, digit) from structure.json. */
 function pic(id, fallback) {
     return id && pictograms.has(id)
-        ? `<img class="picto" src="${settings.pictureStyle === 2 ? 'pictograms-v2' : 'pictograms'}/${esc(id)}.svg" alt="">`
+        ? `<img class="picto" src="${PICTURE_DIRS[settings.pictureStyle] ?? 'pictograms'}/${esc(id)}.svg" alt="">`
         : `<span class="pic">${esc(fallback)}</span>`;
 }
 
@@ -229,7 +231,9 @@ function renderSettings() {
         <div class="group"><h3>Voice</h3><div class="list">${VOICES.map((v) =>
             `<button data-voice="${v}" class="${settings.voice === v ? 'on' : ''}"><span>${voiceTitle(v)}</span><span>${settings.voice === v ? '✓' : ''}</span></button>`).join('')}</div></div>
         <div class="group"><h3>Speed</h3><div class="range"><input type="range" id="speed" min="0.8" max="1.3" step="0.05" value="${settings.speed}"><span id="speed-val">${Number(settings.speed).toFixed(2)}</span></div></div>
-        <div class="group"><h3>Pictures</h3>${seg('pictureStyle', [['Style 1', 1], ['Style 2', 2]])}<p>Style 2: thinner lines, calmer faces.</p></div>
+        <div class="group"><h3>Pictures</h3>${seg('pictureStyle', [['Style 1', 1], ['Style 2', 2], ['Mulberry', 3]])}<p>${settings.pictureStyle === 3
+                ? 'Symbols by Steve Lee, <a href="https://mulberrysymbols.org" target="_blank" rel="noopener">Mulberry Symbols</a>, <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">CC BY-SA 4.0</a>. Words without a Mulberry symbol use our own drawing.'
+                : settings.pictureStyle === 2 ? 'Style 2: thinner lines, calmer faces.' : 'Style 1: our first drawings.'}</p></div>
         <div class="group"><h3>Engine</h3>${seg('engine', [['CPU', 'cpu'], ['GPU', 'gpu']])}<p>GPU is faster but experimental, it needs https. The page reloads when you change it.</p></div>
         <div class="group"><h3>Quality</h3>${seg('steps', STEPS.map(([t, v]) => [t, v]))}<p>Fewer steps are faster but sound rougher.</p></div>`;
 }
@@ -315,6 +319,7 @@ async function boot() {
     }
     // For screenshots: ?folder=toys opens a folder, ?sentence=me,want,ball fills the sentence.
     const params = new URLSearchParams(location.search);
+    if (['1', '2', '3'].includes(params.get('style'))) settings.pictureStyle = Number(params.get('style'));
     if (structure.folders.some((f) => f.id === params.get('folder'))) state.folder = params.get('folder');
     for (const id of (params.get('sentence') ?? '').split(',').filter((i) => words()[i])) state.sentence.push({ id });
     renderAll();

@@ -81,3 +81,20 @@ print(f'{len(app_ids) - len(missing)} of {len(app_ids)} app words have a pictogr
 
 # The same drawings again in style 2.
 subprocess.run([sys.executable, __file__], env={**os.environ, 'PICTO_STYLE': '2'}, check=True)
+
+# Style 3: Mulberry Symbols where Mulberry has one (see mulberry/import_mulberry.py), our style 2 drawing
+# for the rest (pronouns, conjunctions, prepositions, some places and feelings).
+mulberry = HERE / 'mulberry'
+if (mulberry / 'index.json').exists():
+    covered = set(json.loads((mulberry / 'index.json').read_text(encoding='utf-8')))
+    out3 = HERE / 'svg-mulberry'
+    out3.mkdir(exist_ok=True)
+    for old in out3.glob('*'):
+        old.unlink()
+    ids2 = sorted(p.stem for p in (HERE / 'svg-v2').glob('*.svg'))
+    for word_id in ids2:
+        source = mulberry / 'svg' / f'{word_id}.svg' if word_id in covered else HERE / 'svg-v2' / f'{word_id}.svg'
+        (out3 / f'{word_id}.svg').write_bytes(source.read_bytes())
+    (out3 / 'index.json').write_text(json.dumps(ids2), encoding='utf-8')
+    (out3 / 'own.json').write_text(json.dumps([i for i in ids2 if i not in covered]), encoding='utf-8')
+    print(f'{len(ids2)} style 3 pictograms written to {out3}, {len([i for i in ids2 if i in covered])} from Mulberry')

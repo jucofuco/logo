@@ -7,8 +7,11 @@ Hand-drawn SVG pictograms for the app's words, written as Python code. They repl
 python3 pictograms/build.py
 ```
 
-writes `svg/<word id>.svg` (512 x 512, committed, used by the app later) and `preview.html`
-(not committed): all pictograms on one page, plus the list of app words that still have none.
+writes `svg/<word id>.svg` (style 1), `svg-v2/` (style 2: the same drawings, thinner line, small dot eyes, small
+mouth, no blush, narrower body, see `kit.STYLE`) and `svg-mulberry/` (Mulberry Symbols from `mulberry/svg`,
+our style 2 where Mulberry has no symbol; `own.json` lists those), all committed, plus `preview.html` (not
+committed): all pictograms on one page, plus the list of app words that still have none.
+`python3 pictograms/export_png.py` then makes the PNGs the iOS app bundles (`Pictograms/`).
 
 ## Layout
 

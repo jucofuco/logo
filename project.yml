@@ -21,6 +21,10 @@ targets:
     platform: iOS
     sources:
       - logo
+      # Pictogram PNGs of the three sets, made by pictograms/export_png.py. A folder reference keeps the sub folders.
+      - path: Pictograms
+        type: folder
+        buildPhase: resources
     dependencies:
       - package: onnxruntime
         product: onnxruntime

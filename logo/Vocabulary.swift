@@ -83,6 +83,8 @@ struct WordEntry: Decodable {
 struct Folder: Identifiable {
     let id: String
     let picture: String
+    /// Id of its pictogram (`icon` in structure.json), nil if the folder has none.
+    let icon: String?
     let color: Color
     let wordIDs: [String]
 }
@@ -94,6 +96,7 @@ enum Vocabulary {
         struct FolderSpec: Decodable {
             let id: String
             let picture: String
+            let icon: String?
             let color: String
             let words: [String]
         }
@@ -121,7 +124,7 @@ enum Vocabulary {
     static let core: [String] = structure.core
 
     static let folders: [Folder] = structure.folders.map {
-        Folder(id: $0.id, picture: $0.picture, color: color(named: $0.color), wordIDs: $0.words)
+        Folder(id: $0.id, picture: $0.picture, icon: $0.icon, color: color(named: $0.color), wordIDs: $0.words)
     }
 
     static func words(for language: AppLanguage) -> [String: WordEntry] {

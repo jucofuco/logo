@@ -99,9 +99,10 @@ struct ContentView: View {
         let text = rendered.indices.contains(index) ? rendered[index] : item.wordID
         return Button { sentence.remove(at: index) } label: {
             VStack(spacing: 2) {
-                Text(Vocabulary.picture(of: item.wordID))
-                    .font(.display(30, weight: .heavy))
-                    .foregroundStyle(Theme.text)
+                Pictogram(id: item.wordID, fallback: Vocabulary.picture(of: item.wordID))
+                    .frame(width: 40, height: 40)
+                    .padding(2)
+                    .background(Color.white, in: RoundedRectangle(cornerRadius: 9, style: .continuous))
                 Text(text)
                     .font(.display(12, weight: .semibold))
                     .foregroundStyle(Theme.text)
@@ -162,7 +163,7 @@ struct ContentView: View {
                 }
                 LazyVGrid(columns: columns(5), spacing: 8) {
                     ForEach(Vocabulary.core, id: \.self) { id in
-                        cardButton(id, color: Theme.accent, pictureSize: 34, minHeight: 84)
+                        cardButton(id, color: Theme.accent, compact: true)
                     }
                 }
                 LazyVGrid(columns: columns(3), spacing: 10) {
@@ -170,8 +171,8 @@ struct ContentView: View {
                         Button {
                             withAnimation(.snappy) { openFolderID = folder.id }
                         } label: {
-                            tile(picture: folder.picture, title: Vocabulary.title(of: folder, words: words),
-                                 color: folder.color, pictureSize: 44, minHeight: 108)
+                            tile(icon: folder.icon, fallback: folder.picture,
+                                 title: Vocabulary.title(of: folder, words: words), color: folder.color)
                                 .overlay(alignment: .topTrailing) {
                                     Image(systemName: "folder.fill")
                                         .font(.system(size: 12))
@@ -196,7 +197,10 @@ struct ContentView: View {
             } label: {
                 HStack(spacing: 8) {
                     Image(systemName: "chevron.left").font(.system(size: 18, weight: .bold))
-                    Text(folder.picture).font(.system(size: 24))
+                    Pictogram(id: folder.icon, fallback: folder.picture)
+                        .frame(width: 32, height: 32)
+                        .padding(1)
+                        .background(Color.white, in: RoundedRectangle(cornerRadius: 8, style: .continuous))
                     Text(Vocabulary.title(of: folder, words: words)).font(.display(20, weight: .heavy))
                     Spacer()
                 }
@@ -209,7 +213,7 @@ struct ContentView: View {
             ScrollView {
                 LazyVGrid(columns: columns(3), spacing: 10) {
                     ForEach(folder.wordIDs, id: \.self) { id in
-                        cardButton(id, color: folder.color, pictureSize: 44, minHeight: 108)
+                        cardButton(id, color: folder.color)
                     }
                 }
                 .padding(.bottom, 12)
@@ -222,13 +226,12 @@ struct ContentView: View {
         Array(repeating: GridItem(.flexible(), spacing: 10), count: count)
     }
 
-    private func cardButton(_ id: String, color: Color, pictureSize: CGFloat, minHeight: CGFloat) -> some View {
+    private func cardButton(_ id: String, color: Color, compact: Bool = false) -> some View {
         Button {
             add(id)
         } label: {
-            tile(picture: Vocabulary.picture(of: id),
-                 title: Vocabulary.label(of: id, words: words, child: child),
-                 color: color, pictureSize: pictureSize, minHeight: minHeight)
+            tile(icon: id, fallback: Vocabulary.picture(of: id),
+                 title: Vocabulary.label(of: id, words: words, child: child), color: color, compact: compact)
         }
         .buttonStyle(.plain)
     }
@@ -239,24 +242,29 @@ struct ContentView: View {
         speaker.speak(rendered.last ?? "", language: language, voice: voice)
     }
 
-    private func tile(picture: String, title: String, color: Color, pictureSize: CGFloat, minHeight: CGFloat) -> some View {
-        VStack(spacing: 6) {
-            Text(picture)
-                .font(.display(pictureSize, weight: .heavy))
-                .foregroundStyle(Theme.text)
+    /// A card: the word on top, the pictogram below it on white (the pictograms are drawn for a white
+    /// ground, also in dark mode), the folder color as the border.
+    private func tile(icon: String?, fallback: String, title: String, color: Color, compact: Bool = false) -> some View {
+        VStack(spacing: 2) {
             Text(title)
-                .font(.display(pictureSize > 40 ? 15 : 13, weight: .bold))
-                .foregroundStyle(Theme.text)
+                .font(.display(compact ? 12 : 15, weight: .bold))
+                .foregroundStyle(Color(red: 0.1, green: 0.1, blue: 0.11))
                 .lineLimit(2)
                 .multilineTextAlignment(.center)
                 .minimumScaleFactor(0.6)
+            // a square slot, so every card has the same height whatever shape the picture has
+            Color.clear
+                .aspectRatio(1, contentMode: .fit)
+                .overlay { Pictogram(id: icon, fallback: fallback) }
         }
         .padding(.horizontal, 4)
-        .frame(maxWidth: .infinity, minHeight: minHeight)
-        .background(color.opacity(0.18), in: RoundedRectangle(cornerRadius: 20, style: .continuous))
+        .padding(.top, 6)
+        .padding(.bottom, 4)
+        .frame(maxWidth: .infinity)
+        .background(Color.white, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
         .overlay(
-            RoundedRectangle(cornerRadius: 20, style: .continuous)
-                .stroke(color.opacity(0.45), lineWidth: 2)
+            RoundedRectangle(cornerRadius: 18, style: .continuous)
+                .stroke(color, lineWidth: 3)
         )
     }
 }
